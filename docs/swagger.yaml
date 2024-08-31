@@ -1,0 +1,43 @@
+openapi: 3.0.0
+info:
+  title: ConnectMe API
+  description: API for ConnectMe Application
+  version: 1.0.0
+servers:
+  - url: https://api.cupcakez.my.id/api/v1
+    description: Optional server description, e.g. Main (production) server
+  - url: http:localhost:8080/api/v1
+    description: Optional server description, e.g. Internal staging server for testing
+
+tags:
+  - name: auth
+    description: Operations about user authentication
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Login to the application
+      description: Login to the application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+
+                password:
+                  type: string
+      responses:
+        "200":
+          description: A JSON with a token
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
