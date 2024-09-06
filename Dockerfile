@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go application
-RUN go build -o main .
+RUN go build -o main cmd/app/main.go
 
 # Stage 2: Create a lightweight image to run the Go application
 FROM alpine:latest
@@ -26,10 +26,7 @@ RUN apk --update add ca-certificates && rm -rf /var/cache/apk/*
 WORKDIR /app
 
 # Copy the compiled binary from the build stage
-COPY --from=build /app/main .
-
-# Expose the port that the Go app listens on
-EXPOSE 8080
+COPY --from=build /app/main /app/.env ./
 
 # Command to run the application
 CMD ["./main"]
