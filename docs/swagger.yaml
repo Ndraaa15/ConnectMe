@@ -14,7 +14,61 @@ tags:
     description: Operations about user authentication
 
 paths:
-  /auth/login:
+  /auth/signup:
+    post:
+      tags:
+        - auth
+      summary: Login to the application
+      description: Login to the application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+
+                password:
+                  type: string
+      responses:
+        "200":
+          description: A JSON with a token
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /auth/signin:
+    post:
+      tags:
+        - auth
+      summary: Login to the application
+      description: Login to the application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+
+                password:
+                  type: string
+      responses:
+        "200":
+          description: A JSON with a token
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /auth/verify:
     post:
       tags:
         - auth

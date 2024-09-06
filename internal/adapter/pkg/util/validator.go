@@ -20,6 +20,8 @@ func GetErrorValidationMessage(fe validator.FieldError) string {
 		return fmt.Sprintf("%s must be a number", fe.Field())
 	case "e164":
 		return fmt.Sprintf("%s must be a valid phone number", fe.Field())
+	case "phone":
+		return fmt.Sprintf("%s must be a valid phone number", fe.Field())
 	default:
 		return fmt.Sprintf("%s is not valid", fe.Field())
 	}
