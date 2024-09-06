@@ -12,6 +12,9 @@ type (
 		App      App
 		Database Database
 		Cache    Cache
+		Email    Email
+		Storage  Storage
+		Gemini   Gemini
 	}
 
 	App struct {
@@ -36,6 +39,25 @@ type (
 		DB       int
 		Username string
 	}
+
+	Email struct {
+		Host     string
+		Sender   string
+		Port     int
+		Email    string
+		Password string
+	}
+
+	Storage struct {
+		ApiKey    string
+		ProjectID string
+		Bucket    string
+	}
+
+	Gemini struct {
+		ApiKey string
+		Model  string
+	}
 )
 
 func NewEnv() (*Env, error) {
@@ -44,6 +66,11 @@ func NewEnv() (*Env, error) {
 	}
 
 	cacheDB, err := strconv.Atoi(os.Getenv("CACHE_DB"))
+	if err != nil {
+		return &Env{}, err
+	}
+
+	emailPort, err := strconv.Atoi(os.Getenv("EMAIL_SMTP_PORT"))
 	if err != nil {
 		return &Env{}, err
 	}
@@ -71,10 +98,32 @@ func NewEnv() (*Env, error) {
 		Username: os.Getenv("CACHE_USERNAME"),
 	}
 
+	storage := Storage{
+		ApiKey:    os.Getenv("STORAGE_API_KEY"),
+		ProjectID: os.Getenv("STORAGE_PROJECT_ID"),
+		Bucket:    os.Getenv("STORAGE_BUCKET_ID"),
+	}
+
+	email := Email{
+		Host:     os.Getenv("EMAIL_SMTP_HOST"),
+		Port:     emailPort,
+		Email:    os.Getenv("EMAIL_SMTP_EMAIL"),
+		Password: os.Getenv("EMAIL_SMTP_PASSWORD"),
+		Sender:   os.Getenv("EMAIL_SMTP_SENDER"),
+	}
+
+	gemini := Gemini{
+		ApiKey: os.Getenv("GEMINI_API_KEY"),
+		Model:  os.Getenv("GEMINI_MODEL"),
+	}
+
 	env := &Env{
 		App:      app,
 		Database: database,
 		Cache:    cache,
+		Email:    email,
+		Storage:  storage,
+		Gemini:   gemini,
 	}
 
 	return env, nil

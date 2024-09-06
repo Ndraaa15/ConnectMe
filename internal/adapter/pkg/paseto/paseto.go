@@ -2,53 +2,32 @@ package paseto
 
 import (
 	"errors"
-	"time"
 
 	"aidanwoods.dev/go-paseto"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
+	"github.com/Ndraaa15/ConnectMe/internal/core/dto"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
-type Payload struct {
-	ID        uuid.UUID `json:"id"`
-	IssuedAt  time.Time `json:"created_at"`
-	ExpiredAt time.Time `json:"expiry_at"`
-}
-
-func NewPayload(id uuid.UUID, duration time.Duration) *Payload {
-	payload := &Payload{
-		ID:        id,
-		IssuedAt:  time.Now(),
-		ExpiredAt: time.Now().Add(duration),
-	}
-
-	return payload
-}
-
-func (p *Payload) IsNotExpired() bool {
-	return time.Now().Before(p.ExpiredAt)
-}
-
-type PasetoMaker struct {
+type Paseto struct {
 	key          paseto.V4SymmetricKey
 	pasetoParser paseto.Parser
 }
 
-func NewPaseto() *PasetoMaker {
+func NewPaseto() *Paseto {
 	key := paseto.NewV4SymmetricKey()
 
 	pasetoParser := paseto.NewParser()
 	pasetoParser.AddRule(paseto.IssuedBy("ConnectMe"))
 	pasetoParser.AddRule(paseto.Subject("Authentication"))
 
-	return &PasetoMaker{
+	return &Paseto{
 		key:          key,
 		pasetoParser: pasetoParser,
 	}
 }
 
-func (p *PasetoMaker) Encode(payload Payload) (string, error) {
+func (p *Paseto) Encode(payload dto.TokenPayload) (string, error) {
 	token := paseto.NewToken()
 	token.Set("payload", payload)
 
@@ -58,20 +37,20 @@ func (p *PasetoMaker) Encode(payload Payload) (string, error) {
 
 }
 
-func (p *PasetoMaker) Decode(token string) (*Payload, error) {
+func (p *Paseto) Decode(token string) (*dto.TokenPayload, error) {
 	tok, err := p.pasetoParser.ParseV4Local(p.key, token, nil)
 	if err != nil {
-		return &Payload{}, err
+		return &dto.TokenPayload{}, err
 	}
 
-	var payload *Payload
+	var payload *dto.TokenPayload
 	err = tok.Get("payload", payload)
 	if err != nil {
-		return &Payload{}, err
+		return &dto.TokenPayload{}, err
 	}
 
 	if !payload.IsNotExpired() {
-		return &Payload{}, errx.New(fiber.StatusUnauthorized, "Token is invalid", errors.New("TOKEN_EXPIRED"))
+		return &dto.TokenPayload{}, errx.New(fiber.StatusUnauthorized, "Token is invalid", errors.New("TOKEN_EXPIRED"))
 	}
 
 	return payload, nil

@@ -7,8 +7,12 @@ import (
 	"time"
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/config"
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/db/migration"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/handler/rest"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/env"
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/gomail"
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/paseto"
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/repository/cache"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/repository/postgresql"
 	"github.com/Ndraaa15/ConnectMe/internal/core/middleware"
 	"github.com/Ndraaa15/ConnectMe/internal/core/service"
@@ -32,7 +36,7 @@ type App struct {
 }
 
 type Handler interface {
-	Mount(srv *fiber.App)
+	Mount(srv fiber.Router)
 }
 
 func NewApp() (*App, error) {
@@ -49,8 +53,13 @@ func NewApp() (*App, error) {
 		postgresql := config.NewPostgreSQL(env.Database)
 		redis := config.NewRedis(env.Cache)
 		validator := config.NewValidator()
-
 		config.NewZerolog()
+
+		err = migration.MigrateUp(postgresql)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed to migrate")
+			return
+		}
 
 		app = &App{
 			env:       env,
@@ -65,8 +74,12 @@ func NewApp() (*App, error) {
 }
 
 func (a *App) RegisterHandler() {
+	cache := cache.NewRedisClient(a.cache)
+	token := paseto.NewPaseto()
+	email := gomail.NewGomail(a.env.Email)
+
 	authRepository := postgresql.NewAuthRepository(a.db)
-	authService := service.NewAuthService(authRepository, a.cache)
+	authService := service.NewAuthService(authRepository, cache, token, email)
 	authHandler := rest.NewAuthHandler(authService, a.validator)
 
 	a.handlers = append(a.handlers, authHandler)
@@ -74,8 +87,9 @@ func (a *App) RegisterHandler() {
 
 func (a *App) Run() error {
 	log.Info().Msg("Starting Server...")
+	v1 := a.srv.Group("/api/v1")
 	for _, h := range a.handlers {
-		h.Mount(a.srv)
+		h.Mount(v1)
 	}
 
 	a.srv.Use(middleware.Request())

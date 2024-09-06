@@ -16,5 +16,21 @@ func NewValidator() *validator.Validate {
 		}
 		return name
 	})
+
+	v.RegisterValidation("phone", phoneValidation)
+
 	return v
+}
+
+func phoneValidation(fl validator.FieldLevel) bool {
+	phone := fl.Field().String()
+	if len(phone) < 10 || len(phone) > 15 {
+		return false
+	}
+
+	if phone[:3] != "+62" {
+		return false
+	}
+
+	return true
 }
