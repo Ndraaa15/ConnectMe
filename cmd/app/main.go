@@ -2,13 +2,17 @@ package main
 
 import (
 	"context"
+	"flag"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
 
+	"github.com/Ndraaa15/ConnectMe/db/migration"
+	"github.com/Ndraaa15/ConnectMe/db/seed"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/app"
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/env"
 	"github.com/rs/zerolog/log"
 )
 
@@ -16,12 +20,20 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	env, err := env.NewEnv()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to create env")
+		return
+	}
+
 	var wg sync.WaitGroup
 
-	app, err := app.NewApp()
+	app, err := app.NewApp(env)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create app")
 	}
+
+	handleArgs(env)
 
 	app.RegisterHandler()
 	app.Monitor()
@@ -55,4 +67,28 @@ func main() {
 
 	wg.Wait()
 	log.Info().Msg("Shutdown complete")
+}
+
+func handleArgs(env *env.Env) {
+	migrateCmd := flag.NewFlagSet("migrate", flag.ExitOnError)
+	seedCmd := flag.NewFlagSet("seed", flag.ExitOnError)
+
+	migrateAction := migrateCmd.String("action", "", "Specify 'up' or 'down' for migration")
+	seedDomain := seedCmd.String("name", "", "Specify a domain for seeding (optional)")
+
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "migrate":
+			migrateCmd.Parse(os.Args[2:])
+			if *migrateAction == "" {
+				log.Fatal().Msg("action is required")
+			}
+			migration.Migrate(env.Database, *migrateAction)
+			os.Exit(1)
+		case "seed":
+			seedCmd.Parse(os.Args[2:])
+			seed.Execute(env.Database, *seedDomain)
+			os.Exit(1)
+		}
+	}
 }

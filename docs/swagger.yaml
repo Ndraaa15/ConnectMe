@@ -49,6 +49,7 @@ paths:
                 properties:
                   id:
                     type: string
+                    example: 4b6e61c5-c231-4ab9-979d-xxxxxxxxxxxx
                   message:
                     type: string
                     example: User created successfully
@@ -117,3 +118,27 @@ paths:
                   message:
                     type: string
                     example: User verified successfully
+
+  /workers:
+    get:
+      tags:
+        - workers
+      summary: Get all workers
+      description: Get all workers
+      responses:
+        "200":
+          description: A JSON with workers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: 4b6e61c5-c231-4ab9-979d-xxxxxxxxxxxx
+                  name:
+                    type: string
+                    example: Indra
+                  email:
+                    type: string
+                    example:

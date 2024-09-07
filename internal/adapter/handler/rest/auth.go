@@ -30,7 +30,7 @@ func (auth *AuthHandler) Mount(router fiber.Router) {
 }
 
 func (auth *AuthHandler) Register(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
 	var (
@@ -70,7 +70,7 @@ func (auth *AuthHandler) Register(c *fiber.Ctx) error {
 }
 
 func (auth *AuthHandler) Verify(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
 	var (
@@ -102,7 +102,7 @@ func (auth *AuthHandler) Verify(c *fiber.Ctx) error {
 	case err = <-errChan:
 		return err
 	case res := <-resChan:
-		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "User verified successfully",
 			"id":      res,
 		})
@@ -110,7 +110,7 @@ func (auth *AuthHandler) Verify(c *fiber.Ctx) error {
 }
 
 func (auth *AuthHandler) Login(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
 	var (
@@ -142,7 +142,7 @@ func (auth *AuthHandler) Login(c *fiber.Ctx) error {
 	case err = <-errChan:
 		return err
 	case res := <-resChan:
-		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "User login successfully",
 			"token":   res,
 		})

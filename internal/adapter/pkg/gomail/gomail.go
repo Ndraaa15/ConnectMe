@@ -3,6 +3,7 @@ package gomail
 import (
 	"bytes"
 	"html/template"
+	"log"
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/env"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
@@ -11,14 +12,16 @@ import (
 )
 
 type Gomail struct {
-	message *gomail.Message
-	dialer  *gomail.Dialer
+	message  *gomail.Message
+	dialer   *gomail.Dialer
+	htmlPath string
 }
 
 func NewGomail(conf env.Email) *Gomail {
 	return &Gomail{
-		message: gomail.NewMessage(),
-		dialer:  gomail.NewDialer(conf.Host, conf.Port, conf.Email, conf.Password),
+		message:  gomail.NewMessage(),
+		dialer:   gomail.NewDialer(conf.Host, conf.Port, conf.Email, conf.Password),
+		htmlPath: conf.HtmlPath,
 	}
 }
 
@@ -36,7 +39,8 @@ func (g *Gomail) SetSubject(subject string) {
 
 func (g *Gomail) SetBodyHTML(path string, data interface{}) error {
 	var body bytes.Buffer
-	t, err := template.ParseFiles(path)
+	log.Println(g.htmlPath + path)
+	t, err := template.ParseFiles(g.htmlPath + path)
 	if err != nil {
 		return errx.New(fiber.StatusInternalServerError, "Failed to parse template", err)
 	}

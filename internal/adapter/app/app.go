@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/config"
-	"github.com/Ndraaa15/ConnectMe/internal/adapter/db/migration"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/handler/rest"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/env"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/gomail"
@@ -39,27 +38,15 @@ type Handler interface {
 	Mount(srv fiber.Router)
 }
 
-func NewApp() (*App, error) {
+func NewApp(env *env.Env) (*App, error) {
 	var app *App
 
 	once.Do(func() {
-		env, err := env.NewEnv()
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed to create env")
-			return
-		}
-
 		fiber := config.NewFiber(env.App)
 		postgresql := config.NewPostgreSQL(env.Database)
 		redis := config.NewRedis(env.Cache)
 		validator := config.NewValidator()
 		config.NewZerolog()
-
-		err = migration.MigrateUp(postgresql)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed to migrate")
-			return
-		}
 
 		app = &App{
 			env:       env,
@@ -82,7 +69,11 @@ func (a *App) RegisterHandler() {
 	authService := service.NewAuthService(authRepository, cache, token, email)
 	authHandler := rest.NewAuthHandler(authService, a.validator)
 
-	a.handlers = append(a.handlers, authHandler)
+	workerRepository := postgresql.NewWorkerRepository(a.db)
+	workerService := service.NewWorkerService(workerRepository)
+	workerHandler := rest.NewWorkerHandler(workerService, a.validator)
+
+	a.handlers = append(a.handlers, authHandler, workerHandler)
 }
 
 func (a *App) Run() error {
@@ -136,7 +127,7 @@ func (a *App) Shutdown(ctx context.Context) error {
 
 func (a *App) Monitor() {
 	a.srv.Get("/metrics", monitor.New(monitor.Config{
-		Title:   "MyService Metrics Page",
+		Title:   "ConnectMe Metrics",
 		Refresh: 5 * time.Second,
 	}))
 }

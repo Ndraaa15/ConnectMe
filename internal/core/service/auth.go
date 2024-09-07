@@ -58,7 +58,7 @@ func (auth *AuthService) Register(ctx context.Context, req dto.SignUpRequest) (u
 	auth.email.SetSubject("Verification Code")
 	auth.email.SetReciever(user.Email)
 	auth.email.SetSender("fuwafu212@gmail.com")
-	auth.email.SetBodyHTML("internal/adapter/pkg/template/verification_code.html", struct{ Code string }{Code: code})
+	auth.email.SetBodyHTML("verification_code.html", struct{ Code string }{Code: code})
 
 	err = auth.email.Send()
 	if err != nil {

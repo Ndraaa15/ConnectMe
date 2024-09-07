@@ -46,6 +46,7 @@ type (
 		Port     int
 		Email    string
 		Password string
+		HtmlPath string
 	}
 
 	Storage struct {
@@ -110,6 +111,7 @@ func NewEnv() (*Env, error) {
 		Email:    os.Getenv("EMAIL_SMTP_EMAIL"),
 		Password: os.Getenv("EMAIL_SMTP_PASSWORD"),
 		Sender:   os.Getenv("EMAIL_SMTP_SENDER"),
+		HtmlPath: os.Getenv("EMAIL_HTML_PATH"),
 	}
 
 	gemini := Gemini{
