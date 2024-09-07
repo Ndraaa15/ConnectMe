@@ -12,8 +12,8 @@ type TokenPayload struct {
 	ExpiredAt time.Time `json:"expiry_at"`
 }
 
-func NewPayload(id uuid.UUID, duration time.Duration) *TokenPayload {
-	payload := &TokenPayload{
+func NewPayload(id uuid.UUID, duration time.Duration) TokenPayload {
+	payload := TokenPayload{
 		ID:        id,
 		IssuedAt:  time.Now(),
 		ExpiredAt: time.Now().Add(duration),

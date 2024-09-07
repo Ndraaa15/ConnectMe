@@ -24,4 +24,5 @@ type AuthRepositoryClientItf interface {
 type AuthServiceItf interface {
 	Register(ctx context.Context, req dto.SignUpRequest) (uuid.UUID, error)
 	Verify(ctx context.Context, req dto.VerifyAccountRequest) (uuid.UUID, error)
+	Login(ctx context.Context, req dto.SignInRequest) (string, error)
 }

@@ -28,7 +28,7 @@ func fiberErrorHandler() fiber.ErrorHandler {
 		if ce, ok := err.(*errx.Errx); ok {
 			return c.Status(ce.Code).JSON(fiber.Map{
 				"message": ce.Message,
-				"error":   ce.Err,
+				"error":   ce.Error(),
 			})
 		}
 
@@ -40,13 +40,13 @@ func fiberErrorHandler() fiber.ErrorHandler {
 
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"message": "Validation error",
-				"errors":  out,
+				"error":   out,
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Internal server error",
-			"error":   err,
+			"error":   err.Error(),
 		})
 	}
 }

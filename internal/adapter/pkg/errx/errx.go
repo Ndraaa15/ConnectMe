@@ -15,5 +15,5 @@ func New(code int, message string, err error) *Errx {
 }
 
 func (e *Errx) Error() string {
-	return e.Message
+	return e.Err.Error()
 }

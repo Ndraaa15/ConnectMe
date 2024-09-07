@@ -75,5 +75,5 @@ func (r *AuthRepositoryClient) GetUserByID(ctx context.Context, id string) (*dom
 }
 
 func (r *AuthRepositoryClient) UpdateUser(ctx context.Context, user *domain.User) error {
-	return r.q.Debug().WithContext(ctx).Model(&domain.User{}).Save(user).Error
+	return r.q.Debug().WithContext(ctx).Model(&domain.User{}).Where("id = ?", user.ID).Save(user).Error
 }

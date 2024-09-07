@@ -4,10 +4,10 @@ info:
   description: API for ConnectMe Application
   version: 1.0.0
 servers:
-  - url: https://api.cupcakez.my.id/api/v1
+  - url: https://cupcakez.my.id/api/v1
     description: Optional server description, e.g. Main (production) server
-  - url: http:localhost:8080/api/v1
-    description: Optional server description, e.g. Internal staging server for testing
+  - url: http://localhost:8080/api/v1
+    description: Server in local
 
 tags:
   - name: auth
@@ -18,8 +18,8 @@ paths:
     post:
       tags:
         - auth
-      summary: Login to the application
-      description: Login to the application
+      summary: User register
+      description: User register to the application
       requestBody:
         required: true
         content:
@@ -27,25 +27,36 @@ paths:
             schema:
               type: object
               properties:
+                fullName:
+                  type: string
+                  example: "Indra"
                 email:
                   type: string
-
+                  example: "xxxx@gmail.xom"
                 password:
                   type: string
+                  example: "indrachan"
+                phone:
+                  type: string
+                  example: +62xxxxxxxxxxx
       responses:
         "200":
           description: A JSON with a token
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string
+                type: object
+                properties:
+                  id:
+                    type: string
+                  message:
+                    type: string
+                    example: User created successfully
   /auth/signin:
     post:
       tags:
         - auth
-      summary: Login to the application
+      summary: User login
       description: Login to the application
       requestBody:
         required: true
@@ -56,24 +67,29 @@ paths:
               properties:
                 email:
                   type: string
-
+                  example: "xxxx@gmail.xom"
                 password:
                   type: string
+                  example: indrachan
       responses:
         "200":
           description: A JSON with a token
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User login successfully
+                  token:
+                    type: string
   /auth/verify:
     post:
       tags:
         - auth
-      summary: Login to the application
-      description: Login to the application
+      summary: Verify user
+      description: Verify user to able access application
       requestBody:
         required: true
         content:
@@ -81,17 +97,23 @@ paths:
             schema:
               type: object
               properties:
-                email:
+                id:
                   type: string
-
-                password:
+                  example: 4b6e61c5-c231-4ab9-979d-xxxxxxxxxxxx
+                code:
                   type: string
+                  example: 1234
       responses:
         "200":
-          description: A JSON with a token
+          description: A JSON with a id
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: 4b6e61c5-c231-4ab9-979d-xxxxxxxxxxxx
+                  message:
+                    type: string
+                    example: User verified successfully
