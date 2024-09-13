@@ -15,6 +15,7 @@ type (
 		Email    Email
 		Storage  Storage
 		Gemini   Gemini
+		Token    Token
 	}
 
 	App struct {
@@ -58,6 +59,10 @@ type (
 	Gemini struct {
 		ApiKey string
 		Model  string
+	}
+
+	Token struct {
+		Secret string
 	}
 )
 
@@ -119,6 +124,10 @@ func NewEnv() (*Env, error) {
 		Model:  os.Getenv("GEMINI_MODEL"),
 	}
 
+	token := Token{
+		Secret: os.Getenv("TOKEN_SECRET_HEX"),
+	}
+
 	env := &Env{
 		App:      app,
 		Database: database,
@@ -126,6 +135,7 @@ func NewEnv() (*Env, error) {
 		Email:    email,
 		Storage:  storage,
 		Gemini:   gemini,
+		Token:    token,
 	}
 
 	return env, nil

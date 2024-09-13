@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Ndraaa15/ConnectMe/internal/core/domain"
+	"github.com/Ndraaa15/ConnectMe/internal/core/dto"
 )
 
 type WorkerRepositoryItf interface {
@@ -14,8 +15,10 @@ type WorkerRepositoryClientItf interface {
 	Commit() error
 	Rollback() error
 	GetWorkers(ctx context.Context) ([]domain.Worker, error)
+	GetWorker(ctx context.Context, workerID string) (domain.Worker, error)
 }
 
 type WorkerServiceItf interface {
-	GetWorkers(ctx context.Context) ([]domain.Worker, error)
+	GetWorkers(ctx context.Context) ([]dto.WorkerResponse, error)
+	GetWorker(ctx context.Context, workerID string) (dto.WorkerDetailResponse, error)
 }

@@ -8,11 +8,19 @@ import (
 func TagSeeder() Seeder {
 	return func(db *gorm.DB) error {
 		tags := []domain.Tag{
-			{ID: 1, Tag: "Plumber"},
-			{ID: 2, Tag: "Electrician"},
+			{
+				ID:             1,
+				Tag:            "Plumber",
+				Specialization: "Plumbing",
+			},
+			{
+				ID:             2,
+				Tag:            "Electrician",
+				Specialization: "Electrical",
+			},
 		}
 
-		if err := db.CreateInBatches(&tags, len(tags)).Error; err != nil {
+		if err := db.Model(&domain.Tag{}).CreateInBatches(&tags, len(tags)).Error; err != nil {
 			return err
 		}
 

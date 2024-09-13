@@ -17,6 +17,7 @@ func Migrate(env env.Database, action string) error {
 			&domain.Worker{},
 			&domain.WorkerService{},
 			&domain.Tag{},
+			&domain.Review{},
 		); err != nil {
 			log.Fatal().Err(err).Msg("Failed to migrate")
 		}
@@ -26,8 +27,9 @@ func Migrate(env env.Database, action string) error {
 			&domain.Worker{},
 			&domain.WorkerService{},
 			&domain.Tag{},
+			&domain.Review{},
 		); err != nil {
-			log.Fatal().Err(err).Msg("Failed to rollback")
+			log.Fatal().Err(err).Msg("Failed to drop")
 		}
 	}
 

@@ -62,7 +62,7 @@ func NewApp(env *env.Env) (*App, error) {
 
 func (a *App) RegisterHandler() {
 	cache := cache.NewRedisClient(a.cache)
-	token := paseto.NewPaseto()
+	token := paseto.NewPaseto(a.env.Token)
 	email := gomail.NewGomail(a.env.Email)
 
 	authRepository := postgresql.NewAuthRepository(a.db)
@@ -71,7 +71,7 @@ func (a *App) RegisterHandler() {
 
 	workerRepository := postgresql.NewWorkerRepository(a.db)
 	workerService := service.NewWorkerService(workerRepository)
-	workerHandler := rest.NewWorkerHandler(workerService, a.validator)
+	workerHandler := rest.NewWorkerHandler(workerService, a.validator, token)
 
 	a.handlers = append(a.handlers, authHandler, workerHandler)
 }

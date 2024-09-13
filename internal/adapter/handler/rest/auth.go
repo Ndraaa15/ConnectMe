@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Ndraaa15/ConnectMe/internal/core/dto"
+	"github.com/Ndraaa15/ConnectMe/internal/core/middleware"
 	"github.com/Ndraaa15/ConnectMe/internal/core/port"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -24,9 +25,9 @@ func NewAuthHandler(service port.AuthServiceItf, validator *validator.Validate) 
 
 func (auth *AuthHandler) Mount(router fiber.Router) {
 	authRouter := router.Group("/auth")
-	authRouter.Post("/signup", auth.Register)
-	authRouter.Post("/verify", auth.Verify)
-	authRouter.Post("/signin", auth.Login)
+	authRouter.Post("/signup", middleware.Request(), auth.Register)
+	authRouter.Post("/verify", middleware.Request(), auth.Verify)
+	authRouter.Post("/signin", middleware.Request(), auth.Login)
 }
 
 func (auth *AuthHandler) Register(c *fiber.Ctx) error {

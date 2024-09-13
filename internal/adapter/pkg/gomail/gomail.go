@@ -3,7 +3,6 @@ package gomail
 import (
 	"bytes"
 	"html/template"
-	"log"
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/env"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
@@ -39,7 +38,6 @@ func (g *Gomail) SetSubject(subject string) {
 
 func (g *Gomail) SetBodyHTML(path string, data interface{}) error {
 	var body bytes.Buffer
-	log.Println(g.htmlPath + path)
 	t, err := template.ParseFiles(g.htmlPath + path)
 	if err != nil {
 		return errx.New(fiber.StatusInternalServerError, "Failed to parse template", err)

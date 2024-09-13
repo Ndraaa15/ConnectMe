@@ -11,7 +11,7 @@ import (
 
 func UserSeeder() Seeder {
 	return func(db *gorm.DB) error {
-		hashedPassword, err := bcrypt.EncryptPassword("indra123")
+		hashedPassword, err := bcrypt.EncryptPassword("password")
 		if err != nil {
 			return err
 		}
@@ -23,7 +23,7 @@ func UserSeeder() Seeder {
 
 		users := []domain.User{
 			{
-				ID:       uuid.New(),
+				ID:       uuid.MustParse("3eae758c-7c50-4266-b28d-eb180ffd8336"),
 				FullName: "Gede Indra Adi Brata",
 				Email:    "indrabrata599@gmail.com",
 				Phone:    "+628123456789",
@@ -32,9 +32,19 @@ func UserSeeder() Seeder {
 				Birth:    birth,
 				IsActive: true,
 			},
+			{
+				ID:       uuid.MustParse("51487321-5387-4204-a788-686f7b1b80d4"),
+				FullName: "Handedius Sando Sianipar",
+				Email:    "sandogi@gmail.com",
+				Phone:    "+628123456111",
+				Password: hashedPassword,
+				Gender:   domain.Male,
+				Birth:    birth,
+				IsActive: true,
+			},
 		}
 
-		if err := db.CreateInBatches(&users, len(users)).Error; err != nil {
+		if err := db.Model(&domain.User{}).CreateInBatches(&users, len(users)).Error; err != nil {
 			return err
 		}
 

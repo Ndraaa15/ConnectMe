@@ -1,33 +1,32 @@
 package middleware
 
 import (
+	"errors"
 	"strings"
 
-	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/paseto"
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
+	"github.com/Ndraaa15/ConnectMe/internal/core/port"
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog/log"
 )
 
-func Authentication() func(*fiber.Ctx) error {
+func Authentication(tokenSvc port.TokenItf) func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		authorization := c.Get("Authorization")
 
 		if authorization == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"message": "Unauthorized",
-			})
+			return errx.New(fiber.StatusUnauthorized, "missing token", errors.New("UNAUTHORIZED"))
 		}
 
 		authorizations := strings.SplitN(authorization, " ", 2)
 		if len(authorizations) != 2 || authorizations[0] != "Bearer" {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"message": "Invalid token",
-			})
+			return errx.New(fiber.StatusUnauthorized, "invalid token", errors.New("UNAUTHORIZED"))
 		}
 
 		token := authorizations[1]
-		paseto := paseto.NewPaseto()
-		payload, err := paseto.Decode(token)
+		payload, err := tokenSvc.Decode(token)
 		if err != nil {
+			log.Error().Err(err).Msg("Failed to decode token")
 			return err
 		}
 
