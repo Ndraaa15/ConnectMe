@@ -6,6 +6,7 @@ import (
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/util"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog/log"
 )
 
 func NewFiber(conf env.App) *fiber.App {
@@ -26,6 +27,7 @@ func NewFiber(conf env.App) *fiber.App {
 func fiberErrorHandler() fiber.ErrorHandler {
 	return func(c *fiber.Ctx, err error) error {
 		if ce, ok := err.(*errx.Errx); ok {
+			log.Error().Err(ce).Msg(ce.Message)
 			return c.Status(ce.Code).JSON(fiber.Map{
 				"message": ce.Message,
 				"error":   ce.Error(),
@@ -37,13 +39,14 @@ func fiberErrorHandler() fiber.ErrorHandler {
 			for _, e := range ve {
 				out[e.Field()] = util.GetErrorValidationMessage(e)
 			}
-
+			log.Error().Err(err).Msg("Validation error")
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"message": "Validation error",
 				"error":   out,
 			})
 		}
 
+		log.Error().Err(err).Msg("Internal server error")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Internal server error",
 			"error":   err.Error(),
