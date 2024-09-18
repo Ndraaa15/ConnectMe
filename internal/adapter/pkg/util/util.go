@@ -2,18 +2,16 @@ package util
 
 import (
 	"fmt"
-	"math/rand"
+	"math/rand/v2"
 	"time"
 )
 
 const numberCharset = "0123456789"
 
 func GenerateCode(length int) string {
-	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
-
 	code := make([]byte, length)
 	for i := range code {
-		code[i] = numberCharset[rnd.Intn(len(numberCharset))]
+		code[i] = numberCharset[rand.IntN(len(numberCharset))]
 	}
 	return string(code)
 }
