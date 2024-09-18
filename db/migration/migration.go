@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func Migrate(env env.Database, action string) error {
+func Migrate(env env.Database, action string) {
 	db := config.NewPostgreSQL(env)
 
 	switch action {
@@ -34,6 +34,4 @@ func Migrate(env env.Database, action string) error {
 	}
 
 	log.Info().Msgf("Migration %s success", action)
-
-	return nil
 }

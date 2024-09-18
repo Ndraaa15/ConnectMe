@@ -79,14 +79,19 @@ func handleArgs(env *env.Env) {
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
 		case "migrate":
-			migrateCmd.Parse(os.Args[2:])
+			if err := migrateCmd.Parse(os.Args[2:]); err != nil {
+				log.Fatal().Err(err).Msg("Failed to parse migrate command")
+			}
+
 			if *migrateAction == "" {
 				log.Fatal().Msg("action is required")
 			}
 			migration.Migrate(env.Database, *migrateAction)
 			os.Exit(1)
 		case "seed":
-			seedCmd.Parse(os.Args[2:])
+			if err := seedCmd.Parse(os.Args[2:]); err != nil {
+				log.Fatal().Err(err).Msg("Failed to parse seed command")
+			}
 			seed.Execute(env.Database, *seedDomain)
 			os.Exit(1)
 		}
