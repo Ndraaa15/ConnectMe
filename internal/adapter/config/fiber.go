@@ -39,14 +39,14 @@ func fiberErrorHandler() fiber.ErrorHandler {
 			for _, e := range ve {
 				out[e.Field()] = util.GetErrorValidationMessage(e)
 			}
-			log.Error().Err(err).Msg("Validation error")
+			log.Error().Err(err).Msg("validation error")
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"message": "Validation error",
 				"error":   out,
 			})
 		}
 
-		log.Error().Err(err).Msg("Internal server error")
+		log.Error().Err(err).Msg("internal server error")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Internal server error",
 			"error":   err.Error(),

@@ -1,0 +1,18 @@
+{
+    auto_https off
+    debug
+    email indrabrata599@gmail.com
+}
+
+:80, :443 {
+    reverse_proxy backend:8080
+    log {
+        output file /data/logs/caddy.log {
+            roll_size 5mb
+            roll_keep 3
+            roll_keep_for 72h
+        }
+        format json
+        level DEBUG
+    }
+}

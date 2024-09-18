@@ -4,4 +4,3 @@ prod.env
 /log
 /tmp
 /api
-/caddy
