@@ -2,8 +2,10 @@ package rest
 
 import (
 	"context"
+	"strconv"
 	"time"
 
+	"github.com/Ndraaa15/ConnectMe/internal/core/dto"
 	"github.com/Ndraaa15/ConnectMe/internal/core/middleware"
 	"github.com/Ndraaa15/ConnectMe/internal/core/port"
 	"github.com/go-playground/validator/v10"
@@ -42,6 +44,8 @@ func (worker *WorkerHandler) GetWorkers(c *fiber.Ctx) error {
 	resChan := make(chan interface{}, 1)
 
 	go func() {
+		filter, err := parseGetWorkersFilter(c)
+
 		res, err := worker.service.GetWorkers(ctx)
 		if err != nil {
 			errChan <- err
@@ -92,4 +96,23 @@ func (worker *WorkerHandler) GetWorker(c *fiber.Ctx) error {
 			"worker":  res,
 		})
 	}
+}
+
+func parseGetWorkersFilter(c *fiber.Ctx) (dto.GetWorkersFilter, error) {
+	filter := dto.GetWorkersFilter{}
+
+	if keywordQuery := c.Query("keyword"); keywordQuery != "" {
+		filter.Keyword = keywordQuery
+	}
+
+	if fromPopularQuery := c.Query("from_popular"); fromPopularQuery != "" {
+		fromPopular, err := strconv.ParseBool(fromPopularQuery)
+		if err != nil {
+			return filter, err
+		}
+
+		filter.FromPopular = fromPopular
+	}
+
+	return filter, nil
 }

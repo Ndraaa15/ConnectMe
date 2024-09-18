@@ -27,7 +27,8 @@ type Worker struct {
 }
 
 type WorkerService struct {
-	ID        uint64    `gorm:"type:serial;primaryKey"`
+	ID uint64 `gorm:"type:serial;primaryKey"`
+	//image
 	WorkerID  uuid.UUID `gorm:"type:varchar(36)"`
 	Service   string    `gorm:"type:varchar(255)"`
 	Price     float64   `gorm:"type:decimal"`

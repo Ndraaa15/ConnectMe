@@ -30,7 +30,11 @@ type WorkerServiceResponse struct {
 
 type GetWorkersFilter struct {
 	Keyword     string
-	IsPopular   bool
+	FromPopular bool
+	Category    []int
+	FromHighest bool
+	FromLowest  bool
 	LowerPrice  float64
 	HigherPrice float64
+	Review      float64
 }

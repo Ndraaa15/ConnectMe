@@ -7,6 +7,7 @@ type Bot struct {
 	Problem   string    `gorm:"type:text"`
 	Picture   string    `gorm:"type:text"`
 	Response  string    `gorm:"type:text"`
+	Keyword   []string  `gorm:"type:text[]"`
 	CreatedAt time.Time `gorm:"timestampz;autoCreateTime"`
 	UpdatedAt time.Time `gorm:"timestampz;autoUpdateTime"`
 }

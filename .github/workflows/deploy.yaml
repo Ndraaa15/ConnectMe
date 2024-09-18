@@ -1,0 +1,54 @@
+name: Deploy ConnectMe Application
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    name: Build, Test, Lint, and Deploy Go Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22"
+
+      - name: Lint Go Code with golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.54
+
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
+        with:
+          args: ./...
+
+      - name: Create env file
+        run: |
+          touch .env
+          echo "${{ secrets.ENV_PROD }}" > .env
+          cat .env
+
+      - name: Copy ConnectMe Application to  VM
+        uses: appleboy/scp-action@master
+        with:
+          host: "${{ secrets.VM_HOST }}"
+          username: "${{ secrets.VM_USERNAME }}"
+          key: "${{ secrets.VM_SSH_KEY }}"
+          port: "${{ secrets.VM_SSH_PORT }}"
+          source: "."
+          target: "./ConnectMe"
+
+      - name: Deploy ConnectMe Application to  VM
+        uses: appleboy/ssh-action@master
+        with:
+          host: "${{ secrets.VM_HOST }}"
+          username: "${{ secrets.VM_USERNAME }}"
+          key: "${{ secrets.VM_SSH_KEY }}"
+          port: "${{ secrets.VM_SSH_PORT }}"
+          script: |
+            docker compose down
+            docker compose up -d --build
