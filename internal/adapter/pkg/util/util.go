@@ -1,9 +1,12 @@
 package util
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand/v2"
+	"math/big"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 const numberCharset = "0123456789"
@@ -11,7 +14,12 @@ const numberCharset = "0123456789"
 func GenerateCode(length int) string {
 	code := make([]byte, length)
 	for i := range code {
-		code[i] = numberCharset[rand.IntN(len(numberCharset))]
+		n, err := rand.Int(rand.Reader, big.NewInt(9))
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to generate code")
+		}
+
+		code[i] = numberCharset[n.Int64()]
 	}
 	return string(code)
 }
