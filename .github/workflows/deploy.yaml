@@ -26,21 +26,23 @@ jobs:
         with:
           args: ./...
 
-      - name: Copy ConnectMe Application to  VM
+      - name: Copy ConnectMe Application to VM
         uses: appleboy/scp-action@master
         with:
           host: "${{ secrets.VM_HOST }}"
           username: "${{ secrets.VM_USERNAME }}"
+          password: ${{ secrets.VM_PASSWORD }}
           key: "${{ secrets.VM_SSH_KEY }}"
           port: "${{ secrets.VM_SSH_PORT }}"
           source: "."
           target: "./ConnectMe"
 
-      - name: Deploy ConnectMe Application to  VM
+      - name: Deploy ConnectMe Application to VM
         uses: appleboy/ssh-action@master
         with:
           host: "${{ secrets.VM_HOST }}"
           username: "${{ secrets.VM_USERNAME }}"
+          password: ${{ secrets.VM_PASSWORD }}
           key: "${{ secrets.VM_SSH_KEY }}"
           port: "${{ secrets.VM_SSH_PORT }}"
           script: |
