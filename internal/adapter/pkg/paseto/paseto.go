@@ -34,7 +34,10 @@ func NewPaseto(env env.Token) *Paseto {
 
 func (p *Paseto) Encode(payload dto.TokenPayload) (string, error) {
 	token := paseto.NewToken()
-	token.Set("payload", payload)
+	err := token.Set("payload", payload)
+	if err != nil {
+		return "", err
+	}
 	token.SetIssuedAt(payload.IssuedAt)
 	token.SetExpiration(payload.ExpiresAt)
 	token.SetIssuer("ConnectMe")

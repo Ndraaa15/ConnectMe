@@ -44,7 +44,7 @@ func (worker *WorkerHandler) GetWorkers(c *fiber.Ctx) error {
 	resChan := make(chan interface{}, 1)
 
 	go func() {
-		filter, err := parseGetWorkersFilter(c)
+		_, err = parseGetWorkersFilter(c)
 
 		res, err := worker.service.GetWorkers(ctx)
 		if err != nil {

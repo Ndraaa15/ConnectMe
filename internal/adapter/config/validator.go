@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/rs/zerolog/log"
 )
 
 func NewValidator() *validator.Validate {
@@ -17,7 +18,9 @@ func NewValidator() *validator.Validate {
 		return name
 	})
 
-	v.RegisterValidation("phone", phoneValidation)
+	if err := v.RegisterValidation("phone", phoneValidation); err != nil {
+		log.Fatal().Err(err).Msg("Failed to register phone validation")
+	}
 
 	return v
 }

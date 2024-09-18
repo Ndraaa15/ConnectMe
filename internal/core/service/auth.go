@@ -53,12 +53,18 @@ func (auth *AuthService) Register(ctx context.Context, req dto.SignUpRequest) (u
 	}
 
 	code := util.GenerateCode(4)
-	auth.cache.Set(ctx, user.ID.String(), code, 10*time.Minute)
+	err = auth.cache.Set(ctx, user.ID.String(), code, 10*time.Minute)
+	if err != nil {
+		return uuid.Nil, err
+	}
 
 	auth.email.SetSubject("Verification Code")
 	auth.email.SetReciever(user.Email)
 	auth.email.SetSender("fuwafu212@gmail.com")
-	auth.email.SetBodyHTML("verification_code.html", struct{ Code string }{Code: code})
+	err = auth.email.SetBodyHTML("verification_code.html", struct{ Code string }{Code: code})
+	if err != nil {
+		return uuid.Nil, err
+	}
 
 	err = auth.email.Send()
 	if err != nil {

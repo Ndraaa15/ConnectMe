@@ -43,7 +43,11 @@ func (g *Gomail) SetBodyHTML(path string, data interface{}) error {
 		return errx.New(fiber.StatusInternalServerError, "Failed to parse template", err)
 	}
 
-	t.Execute(&body, data)
+	err = t.Execute(&body, data)
+	if err != nil {
+		return errx.New(fiber.StatusInternalServerError, "Failed to execute template", err)
+	}
+
 	g.message.SetBody("text/html", body.String())
 	return nil
 }
