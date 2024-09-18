@@ -47,6 +47,6 @@ jobs:
           port: "${{ secrets.VM_SSH_PORT }}"
           script: |
             cd ./ConnectMe
-            echo "${{ secrets.ENV_PROD }}" | tr -d '\r' > .env
+            cat "${{ secrets.ENV_PROD }}"
             docker compose down
             docker compose up -d --build
