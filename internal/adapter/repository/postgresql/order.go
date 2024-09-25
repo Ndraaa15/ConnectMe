@@ -2,10 +2,13 @@ package postgresql
 
 import (
 	"context"
+	"errors"
 
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
 	"github.com/Ndraaa15/ConnectMe/internal/core/domain"
 	"github.com/Ndraaa15/ConnectMe/internal/core/dto"
 	"github.com/Ndraaa15/ConnectMe/internal/core/port"
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
@@ -49,8 +52,16 @@ func (r *OrderRepositoryClient) CreateOrder(ctx context.Context, data *domain.Or
 
 func (r *OrderRepositoryClient) GetOrderByID(ctx context.Context, id string) (domain.Order, error) {
 	var order domain.Order
-	err := r.q.Debug().WithContext(ctx).Model(&domain.Order{}).Where("id = ?", id).First(&order).Error
-	return order, err
+	err := r.q.Debug().WithContext(ctx).Preload("Worker.Tag").Preload("Worker.WorkerServices").Preload("Payment").Preload("Address").Model(&domain.Order{}).Where("order_id = ?", id).First(&order).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return domain.Order{}, errx.New(fiber.StatusNotFound, "order not found", err)
+		}
+		return domain.Order{}, err
+	}
+
+	return order, nil
 }
 
 func (r *OrderRepositoryClient) GetOrdersByUserID(ctx context.Context, userID string, filter dto.GetOrderFilter) ([]domain.Order, error) {

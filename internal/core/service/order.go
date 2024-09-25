@@ -177,6 +177,7 @@ func formatOrderResponse(order *domain.Order, orderResponse *dto.OrderResponse) 
 		WorkerID:    order.WorkerID,
 		StatusOrder: order.OrderStatus.String(),
 		WorkerName:  order.Worker.Name,
+		WorkerImage: order.Worker.Image,
 		Tag: dto.TagResponse{
 			ID:             order.Worker.Tag.ID,
 			Tag:            order.Worker.Tag.Tag,
@@ -204,11 +205,14 @@ func (s *OrderService) GetOrder(ctx context.Context, orderID string) (dto.OrderD
 	var wg sync.WaitGroup
 	workerServices := make([]dto.WorkerServiceResponse, len(orderData.WorkerService))
 	for i, workerService := range workerServiceData {
+		wg.Add(1)
 		go func(i int, workerService domain.WorkerService) {
 			defer wg.Done()
 			formatWorkerServiceResponse(&workerService, &workerServices[i])
 		}(i, *workerService)
 	}
+
+	wg.Wait()
 
 	var orderDetailResponse dto.OrderDetailResponse
 	formatOrderDetailResponse(&orderData, &orderDetailResponse)
@@ -224,6 +228,7 @@ func formatOrderDetailResponse(order *domain.Order, orderDetailResponse *dto.Ord
 		StatusOrder: order.OrderStatus.String(),
 		WorkerID:    order.WorkerID,
 		WorkerName:  order.Worker.Name,
+		WorkerImage: order.Worker.Image,
 		Tag: dto.TagResponse{
 			ID:             order.Worker.Tag.ID,
 			Tag:            order.Worker.Tag.Tag,

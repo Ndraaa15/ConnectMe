@@ -449,6 +449,9 @@ paths:
                         workerName:
                           type: string
                           example: John Doe
+                        workerImage:
+                          type: string
+                          example: https://arcudskzafkijqukfool.supabase.co/storage/v1/object/public/connect-me/professional-plumber.jpg
                         tag:
                           type: object
                           properties:
@@ -470,6 +473,96 @@ paths:
                         orderTime:
                           type: string
                           example: 08:00
+  /orders/{id}:
+    get:
+      tags:
+        - order
+      summary: Get order by id
+      description: Get order by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Order id
+          schema:
+            type: string
+            example: CM-1727237477
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer token
+      responses:
+        "200":
+          description: A JSON with order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Order Fetched
+                  order:
+                    type: object
+                    properties:
+                      orderID:
+                        type: string
+                        example: CM-1727237477
+                      statusOrder:
+                        type: string
+                        example: On Going
+                      workerID:
+                        type: string
+                        example: 079ca082-37c0-44d2-a648-f83bf482c4a3
+                      workerName:
+                        type: string
+                        example: John Doe
+                      workerImage:
+                        type: string
+                        example: https://arcudskzafkijqukfool.supabase.co/storage/v1/object/public/connect-me/professional-plumber.jpg
+                      tag:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          tag:
+                            type: string
+                            example: Plumber
+                          specialization:
+                            type: string
+                            example: Plumbing
+                      transactionTime:
+                        type: string
+                        example: 25 September 2024 11:11
+                      paymentMethod:
+                        type: string
+                        example: BRI Virtual Account
+                      paymentStatus:
+                        type: string
+                        example: On Going
+                      location:
+                        type: string
+                        example: Jl. Raya Kedungkandang
+                      workerService:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            service:
+                              type: string
+                              example: Leak Repair
+                            price:
+                              type: integer
+                              example: 150000
+                      serviceFee:
+                        type: integer
+                        example: 5000
 components:
   securitySchemes:
     bearerAuth:

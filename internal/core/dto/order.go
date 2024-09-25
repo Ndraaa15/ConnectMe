@@ -24,6 +24,7 @@ type OrderResponse struct {
 	StatusOrder string      `json:"statusOrder"`
 	WorkerID    string      `json:"workerID"`
 	WorkerName  string      `json:"workerName"`
+	WorkerImage string      `json:"workerImage"`
 	Tag         TagResponse `json:"tag"`
 	TotalPrice  float64     `json:"totalPrice"`
 	OrderDate   string      `json:"orderDate"`
@@ -35,6 +36,7 @@ type OrderDetailResponse struct {
 	StatusOrder     string                  `json:"statusOrder"`
 	WorkerID        string                  `json:"workerID"`
 	WorkerName      string                  `json:"workerName"`
+	WorkerImage     string                  `json:"workerImage"`
 	Tag             TagResponse             `json:"tag"`
 	TransactionTime string                  `json:"transactionTime"`
 	PaymentMethod   string                  `json:"paymentMethod"`
