@@ -16,7 +16,8 @@ tags:
     description: Operations about workers
   - name: order
     description: Operations about order
-
+  - name: review
+    description: Operations about review
 paths:
   /auth/signup:
     post:
@@ -563,7 +564,6 @@ paths:
                       serviceFee:
                         type: integer
                         example: 500
-
     patch:
       tags:
         - order
@@ -598,6 +598,7 @@ paths:
                   message:
                     type: string
                     example: Order Updated
+
 components:
   securitySchemes:
     bearerAuth:
