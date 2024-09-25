@@ -8,5 +8,5 @@ import (
 )
 
 type PaymentGatewayItf interface {
-	CreateTransaction(ctx context.Context, payment domain.Payment) (dto.PaymentResponse, error)
+	CreateTransaction(ctx context.Context, payment domain.Payment) (dto.TransactionResponse, error)
 }

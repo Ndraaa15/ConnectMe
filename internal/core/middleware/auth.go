@@ -44,7 +44,7 @@ func Authentication(tokenSvc port.TokenItf, role ...string) func(*fiber.Ctx) err
 			}
 		}
 
-		c.Locals("userID", payload.ID.String())
+		c.Locals("userID", payload.ID)
 
 		return c.Next()
 	}

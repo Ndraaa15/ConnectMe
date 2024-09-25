@@ -2,12 +2,10 @@ package domain
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type User struct {
-	ID        uuid.UUID   `gorm:"type:varchar(36);primaryKey"`
+	ID        string      `gorm:"type:varchar(36);primaryKey"`
 	FullName  string      `gorm:"type:varchar(255)"`
 	Phone     string      `gorm:"type:varchar(15);unique"`
 	Email     string      `gorm:"type:varchar(255);unique"`

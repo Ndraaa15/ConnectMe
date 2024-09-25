@@ -5,7 +5,8 @@ type PaymentRequest struct {
 	PromoCode   string `json:"promoCode"`
 }
 
-type PaymentResponse struct {
+type TransactionResponse struct {
+	PaymentMethod          string                 `json:"paymentMethod"`
 	LimitTransactionDate   string                 `json:"limitTransactionDate"`
 	TotalPrice             float64                `json:"totalPrice"`
 	VirtualAccountResponse VirtualAccountResponse `json:"virtualAccount,omitempty"`

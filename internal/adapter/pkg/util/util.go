@@ -49,3 +49,7 @@ func GetTimeSinceCreation(createdAt time.Time) string {
 		return fmt.Sprintf("%d tahun lalu", years)
 	}
 }
+
+func GenerateOrderCode() string {
+	return fmt.Sprintf("CM-%d", time.Now().Unix())
+}

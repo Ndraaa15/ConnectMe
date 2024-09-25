@@ -42,6 +42,6 @@ func (r *PaymentRepositoryClient) Rollback() error {
 	return r.q.Rollback().Error
 }
 
-func (r *PaymentRepositoryClient) CreatePayment(ctx context.Context, data *domain.Payment) error {
-	return r.q.Debug().WithContext(ctx).Model(&domain.Payment{}).Create(data).Error
+func (r *PaymentRepositoryClient) UpdatePayment(ctx context.Context, data *domain.Payment) error {
+	return r.q.Debug().WithContext(ctx).Model(&domain.Payment{}).Where("id = ?", data.ID).Save(data).Error
 }

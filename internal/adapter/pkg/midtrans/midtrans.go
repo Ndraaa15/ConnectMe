@@ -23,10 +23,10 @@ func NewMidtrans(conf env.PaymentGateway) *Midtrans {
 	}
 }
 
-func (m *Midtrans) CreateTransaction(ctx context.Context, payment domain.Payment) (dto.PaymentResponse, error) {
+func (m *Midtrans) CreateTransaction(ctx context.Context, payment domain.Payment) (dto.TransactionResponse, error) {
 	chargeReq := &coreapi.ChargeReq{
 		TransactionDetails: midtrans.TransactionDetails{
-			OrderID:  payment.OrderID.String(),
+			OrderID:  payment.OrderID,
 			GrossAmt: int64(payment.TotalPrice),
 		},
 	}
@@ -64,12 +64,13 @@ func (m *Midtrans) CreateTransaction(ctx context.Context, payment domain.Payment
 
 	resp, err := m.midtrans.ChargeTransaction(chargeReq)
 	if err != nil {
-		return dto.PaymentResponse{}, err
+		return dto.TransactionResponse{}, err
 	}
 
-	var paymentResp dto.PaymentResponse
+	var paymentResp dto.TransactionResponse
 	paymentResp.TotalPrice = payment.TotalPrice
 	paymentResp.LimitTransactionDate = resp.ExpiryTime
+	paymentResp.PaymentMethod = payment.PaymentType.String()
 
 	if resp.PaymentType == "gopay" || resp.PaymentType == "shopeepay" {
 		var eWalletAction []dto.EWalletAction

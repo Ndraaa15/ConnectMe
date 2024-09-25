@@ -31,21 +31,21 @@ func NewAuthService(repository port.AuthRepositoryItf, cache port.CacheItf, toke
 	}
 }
 
-func (auth *AuthService) Register(ctx context.Context, req dto.SignUpRequest) (uuid.UUID, error) {
+func (auth *AuthService) Register(ctx context.Context, req dto.SignUpRequest) (string, error) {
 	repositoryClient := auth.repository.NewAuthRepositoryClient(false)
 
 	hashedPassword, err := bcrypt.EncryptPassword(req.Password)
 	if err != nil {
-		return uuid.Nil, err
+		return "", err
 	}
 
 	role, err := parseAccountRole(req.Role)
 	if err != nil {
-		return uuid.Nil, err
+		return "", err
 	}
 
 	user := domain.User{
-		ID:       uuid.New(),
+		ID:       uuid.New().String(),
 		FullName: req.FullName,
 		Email:    req.Email,
 		Password: hashedPassword,
@@ -55,13 +55,15 @@ func (auth *AuthService) Register(ctx context.Context, req dto.SignUpRequest) (u
 
 	err = repositoryClient.CreateUser(ctx, &user)
 	if err != nil {
-		return uuid.Nil, err
+		return "", err
+
 	}
 
 	code := util.GenerateCode(4)
-	err = auth.cache.Set(ctx, user.ID.String(), code, 10*time.Minute)
+	err = auth.cache.Set(ctx, user.ID, code, 10*time.Minute)
 	if err != nil {
-		return uuid.Nil, err
+		return "", err
+
 	}
 
 	auth.email.SetSubject("Verification Code")
@@ -69,36 +71,38 @@ func (auth *AuthService) Register(ctx context.Context, req dto.SignUpRequest) (u
 	auth.email.SetSender("fuwafu212@gmail.com")
 	err = auth.email.SetBodyHTML("verification_code.html", struct{ Code string }{Code: code})
 	if err != nil {
-		return uuid.Nil, err
+		return "", err
+
 	}
 
 	err = auth.email.Send()
 	if err != nil {
-		return uuid.Nil, err
+		return "", err
+
 	}
 
 	return user.ID, nil
 }
 
-func (auth *AuthService) Verify(ctx context.Context, req dto.VerifyAccountRequest) (uuid.UUID, error) {
+func (auth *AuthService) Verify(ctx context.Context, req dto.VerifyAccountRequest) (string, error) {
 	repositoryClient := auth.repository.NewAuthRepositoryClient(false)
 
 	user, err := repositoryClient.GetUserByID(ctx, req.ID)
 	if err != nil {
-		return uuid.Nil, err
+		return "", err
 	}
 
-	data, err := auth.cache.Get(ctx, user.ID.String())
+	data, err := auth.cache.Get(ctx, user.ID)
 	if err != nil {
-		return uuid.Nil, err
+		return "", err
 	}
 
 	if data != req.Code {
-		return uuid.Nil, errx.New(fiber.StatusBadRequest, "invalid code", errors.New("invalid code not match"))
+		return "", errx.New(fiber.StatusBadRequest, "invalid code", errors.New("invalid code not match"))
 	} else {
-		err = auth.cache.Delete(ctx, user.ID.String())
+		err = auth.cache.Delete(ctx, user.ID)
 		if err != nil {
-			return uuid.Nil, err
+			return "", err
 		}
 
 		user.IsActive = true
@@ -106,7 +110,7 @@ func (auth *AuthService) Verify(ctx context.Context, req dto.VerifyAccountReques
 
 	err = repositoryClient.UpdateUser(ctx, user)
 	if err != nil {
-		return uuid.Nil, err
+		return "", err
 	}
 
 	return user.ID, nil

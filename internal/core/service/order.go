@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/util"
 	"github.com/Ndraaa15/ConnectMe/internal/core/domain"
 	"github.com/Ndraaa15/ConnectMe/internal/core/dto"
 	"github.com/Ndraaa15/ConnectMe/internal/core/port"
@@ -38,7 +38,7 @@ func NewOrderService(repository port.OrderRepositoryItf, cache port.CacheItf, wo
 	return orderService
 }
 
-func (order *OrderService) CreateOrder(ctx context.Context, req dto.CreateOrderRequest, userID string) (dto.PaymentResponse, error) {
+func (order *OrderService) CreateOrder(ctx context.Context, req dto.CreateOrderRequest, userID string) (dto.TransactionResponse, error) {
 	repositoryClient := order.repository.NewOrderRepositoryClient(true)
 
 	var (
@@ -55,11 +55,11 @@ func (order *OrderService) CreateOrder(ctx context.Context, req dto.CreateOrderR
 
 	workerServices, err := order.workerServiceRepositoryClient.GetWorkerServicesByWorkerServiceIDs(ctx, req.WorkerService)
 	if err != nil {
-		return dto.PaymentResponse{}, err
+		return dto.TransactionResponse{}, err
 	}
 
 	if len(workerServices) != len(req.WorkerService) {
-		return dto.PaymentResponse{}, errx.New(fiber.StatusBadRequest, "worker service not found", errors.New("worker service not found"))
+		return dto.TransactionResponse{}, errx.New(fiber.StatusBadRequest, "worker service not found", errors.New("worker service not found"))
 	}
 
 	var totalWorkerServicePrice float64
@@ -69,18 +69,18 @@ func (order *OrderService) CreateOrder(ctx context.Context, req dto.CreateOrderR
 
 	date, err := time.Parse("02 January 2006", req.Date)
 	if err != nil {
-		return dto.PaymentResponse{}, err
+		return dto.TransactionResponse{}, err
 	}
 
 	time, err := time.Parse("15:04", req.Time)
 	if err != nil {
-		return dto.PaymentResponse{}, err
+		return dto.TransactionResponse{}, err
 	}
 
 	orderData := domain.Order{
-		OrderID:       uuid.New(),
-		WorkerID:      uuid.MustParse(req.WorkerID),
-		UserID:        uuid.MustParse(userID),
+		OrderID:       util.GenerateOrderCode(),
+		WorkerID:      req.WorkerID,
+		UserID:        userID,
 		Date:          date,
 		Time:          time,
 		WorkerService: req.WorkerService,
@@ -98,11 +98,11 @@ func (order *OrderService) CreateOrder(ctx context.Context, req dto.CreateOrderR
 
 	paymentType, err := parsePaymentType(req.Payment.PaymentType)
 	if err != nil {
-		return dto.PaymentResponse{}, err
+		return dto.TransactionResponse{}, err
 	}
 
-	paymentData := domain.Payment{
-		PaymentID:         uuid.New(),
+	orderData.Payment = domain.Payment{
+		ID:                uuid.New().String(),
 		OrderID:           orderData.OrderID,
 		ServiceFee:        5000,
 		TotalServicePrice: totalWorkerServicePrice,
@@ -112,48 +112,17 @@ func (order *OrderService) CreateOrder(ctx context.Context, req dto.CreateOrderR
 		Status:            domain.StatusPaymentOnGoing,
 	}
 
-	errorChan := make(chan error, 2)
-	defer close(errorChan)
-
-	var wg sync.WaitGroup
-
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if err := repositoryClient.CreateOrder(ctx, &orderData); err != nil {
-			errorChan <- err
-			cancel()
-		}
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if err := order.paymentRepositoryClient.CreatePayment(ctx, &paymentData); err != nil {
-			fmt.Println("error create payment")
-			errorChan <- err
-			cancel()
-		}
-	}()
-
-	wg.Wait()
-
-	select {
-	case err = <-errorChan:
-		return dto.PaymentResponse{}, err
-	default:
+	if err := repositoryClient.CreateOrder(ctx, &orderData); err != nil {
+		return dto.TransactionResponse{}, err
 	}
 
 	if err := repositoryClient.Commit(); err != nil {
-		return dto.PaymentResponse{}, err
+		return dto.TransactionResponse{}, err
 	}
 
-	res, err := order.paymentGateway.CreateTransaction(ctx, paymentData)
+	res, err := order.paymentGateway.CreateTransaction(ctx, orderData.Payment)
 	if err != nil {
-		return dto.PaymentResponse{}, err
+		return dto.TransactionResponse{}, err
 	}
 
 	return res, nil
@@ -175,5 +144,95 @@ func parsePaymentType(paymentType string) (domain.PaymentType, error) {
 		return domain.PaymentTypeGopay, nil
 	default:
 		return domain.PaymentTypeUnknown, errx.New(fiber.StatusBadRequest, "input payment type is unknown", errors.New("invalid payment type"))
+	}
+}
+
+func (order *OrderService) GetOrders(ctx context.Context, userID string, filter dto.GetOrderFilter) ([]dto.OrderResponse, error) {
+	repositoryClient := order.repository.NewOrderRepositoryClient(true)
+
+	data, err := repositoryClient.GetOrdersByUserID(ctx, userID, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	orders := make([]dto.OrderResponse, len(data))
+
+	var wg sync.WaitGroup
+
+	for i, order := range data {
+		wg.Add(1)
+		go func(i int, order domain.Order) {
+			defer wg.Done()
+			formatOrderResponse(&order, &orders[i])
+		}(i, order)
+	}
+
+	wg.Wait()
+	return orders, nil
+}
+
+func formatOrderResponse(order *domain.Order, orderResponse *dto.OrderResponse) {
+	*orderResponse = dto.OrderResponse{
+		OrderID:     order.OrderID,
+		WorkerID:    order.WorkerID,
+		StatusOrder: order.OrderStatus.String(),
+		WorkerName:  order.Worker.Name,
+		Tag: dto.TagResponse{
+			ID:             order.Worker.Tag.ID,
+			Tag:            order.Worker.Tag.Tag,
+			Specialization: order.Worker.Tag.Specialization,
+		},
+		TotalPrice: order.Payment.TotalPrice,
+		OrderDate:  order.Date.Format("02 January 2006"),
+		OrderTime:  order.Time.Format("15:04"),
+	}
+}
+
+func (s *OrderService) GetOrder(ctx context.Context, orderID string) (dto.OrderDetailResponse, error) {
+	repositoryClient := s.repository.NewOrderRepositoryClient(false)
+
+	orderData, err := repositoryClient.GetOrderByID(ctx, orderID)
+	if err != nil {
+		return dto.OrderDetailResponse{}, err
+	}
+
+	workerServiceData, err := s.workerServiceRepositoryClient.GetWorkerServicesByWorkerServiceIDs(ctx, orderData.WorkerService)
+	if err != nil {
+		return dto.OrderDetailResponse{}, err
+	}
+
+	var wg sync.WaitGroup
+	workerServices := make([]dto.WorkerServiceResponse, len(orderData.WorkerService))
+	for i, workerService := range workerServiceData {
+		go func(i int, workerService domain.WorkerService) {
+			defer wg.Done()
+			formatWorkerServiceResponse(&workerService, &workerServices[i])
+		}(i, *workerService)
+	}
+
+	var orderDetailResponse dto.OrderDetailResponse
+	formatOrderDetailResponse(&orderData, &orderDetailResponse)
+
+	orderDetailResponse.WorkerService = workerServices
+
+	return orderDetailResponse, nil
+}
+
+func formatOrderDetailResponse(order *domain.Order, orderDetailResponse *dto.OrderDetailResponse) {
+	*orderDetailResponse = dto.OrderDetailResponse{
+		OrderID:     order.OrderID,
+		StatusOrder: order.OrderStatus.String(),
+		WorkerID:    order.WorkerID,
+		WorkerName:  order.Worker.Name,
+		Tag: dto.TagResponse{
+			ID:             order.Worker.Tag.ID,
+			Tag:            order.Worker.Tag.Tag,
+			Specialization: order.Worker.Tag.Specialization,
+		},
+		TransactionTime: order.Payment.CreatedAt.Format("02 January 2006 15:04"),
+		PaymentMethod:   order.Payment.PaymentType.String(),
+		PaymentStatus:   order.Payment.Status.String(),
+		Location:        order.Address.Street,
+		ServiceFee:      order.Payment.ServiceFee,
 	}
 }

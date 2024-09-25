@@ -5,7 +5,6 @@ import (
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/bcrypt"
 	"github.com/Ndraaa15/ConnectMe/internal/core/domain"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -23,7 +22,7 @@ func UserSeeder() Seeder {
 
 		users := []domain.User{
 			{
-				ID:       uuid.MustParse("3eae758c-7c50-4266-b28d-eb180ffd8336"),
+				ID:       "3eae758c-7c50-4266-b28d-eb180ffd8336",
 				FullName: "Gede Indra Adi Brata",
 				Email:    "indrabrata599@gmail.com",
 				Phone:    "+628123456789",
@@ -34,7 +33,7 @@ func UserSeeder() Seeder {
 				IsActive: true,
 			},
 			{
-				ID:       uuid.MustParse("51487321-5387-4204-a788-686f7b1b80d4"),
+				ID:       "51487321-5387-4204-a788-686f7b1b80d4",
 				FullName: "Handedius Sando Sianipar",
 				Email:    "sandogi@gmail.com",
 				Phone:    "+628123456111",

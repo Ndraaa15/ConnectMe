@@ -129,6 +129,13 @@ paths:
         - workers
       summary: Get all workers
       description: Get all workers
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer token
       responses:
         "200":
           description: A JSON with workers
@@ -193,6 +200,12 @@ paths:
           schema:
             type: string
             example: 4b6e61c5-c231-4ab9-979d-xxxxxxxxxxxx
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer token
       responses:
         "200":
           description: A JSON with worker
@@ -390,7 +403,73 @@ paths:
                                 url:
                                   type: string
                                   example: https://api.sandbox.midtrans.com/v2/gopay/7814435b-6313-451a-89f4-52cfe0caf951/qr-code
-
+    get:
+      tags:
+        - order
+      summary: Get all orders
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer token
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            example: on_going,completed,canceled
+      description: Get all orders
+      responses:
+        "200":
+          description: A JSON with orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Orders Fetched
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        orderID:
+                          type: string
+                          example: CM-1727237477
+                        statusOrder:
+                          type: string
+                          example: On Going
+                        workerID:
+                          type: string
+                          example: 079ca082-37c0-44d2-a648-f83bf482c4a3
+                        workerName:
+                          type: string
+                          example: John Doe
+                        tag:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            tag:
+                              type: string
+                              example: Plumber
+                            specialization:
+                              type: string
+                              example: Plumbing
+                        totalPrice:
+                          type: integer
+                          example: 315000
+                        orderDate:
+                          type: string
+                          example: 20 October 2021
+                        orderTime:
+                          type: string
+                          example: 08:00
 components:
   securitySchemes:
     bearerAuth:

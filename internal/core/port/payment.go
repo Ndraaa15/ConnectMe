@@ -13,7 +13,7 @@ type PaymentRepositoryItf interface {
 type PaymentRepositoryClientItf interface {
 	Commit() error
 	Rollback() error
-	CreatePayment(ctx context.Context, data *domain.Payment) error
+	UpdatePayment(ctx context.Context, data *domain.Payment) error
 }
 
 type PaymentServiceItf interface {

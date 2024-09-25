@@ -15,9 +15,12 @@ type OrderRepositoryClientItf interface {
 	Commit() error
 	Rollback() error
 	CreateOrder(ctx context.Context, data *domain.Order) error
-	CreateAddressOrder(ctx context.Context, data *domain.AddressOrder) error
+	GetOrdersByUserID(ctx context.Context, userID string, filter dto.GetOrderFilter) ([]domain.Order, error)
+	GetOrderByID(ctx context.Context, id string) (domain.Order, error)
 }
 
 type OrderServiceItf interface {
-	CreateOrder(ctx context.Context, req dto.CreateOrderRequest, userID string) (dto.PaymentResponse, error)
+	CreateOrder(ctx context.Context, req dto.CreateOrderRequest, userID string) (dto.TransactionResponse, error)
+	GetOrders(ctx context.Context, userID string, filter dto.GetOrderFilter) ([]dto.OrderResponse, error)
+	GetOrder(ctx context.Context, orderID string) (dto.OrderDetailResponse, error)
 }

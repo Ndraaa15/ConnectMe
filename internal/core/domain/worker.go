@@ -8,7 +8,7 @@ import (
 )
 
 type Worker struct {
-	ID             uuid.UUID       `gorm:"type:varchar(36);primaryKey"`
+	ID             string          `gorm:"type:varchar(36);primaryKey"`
 	Name           string          `gorm:"type:varchar(255)"`
 	TagID          uint64          `gorm:"type:integer"`
 	Tag            Tag             `gorm:"references:ID;foreignKey:TagID"`

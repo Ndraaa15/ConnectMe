@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Ndraaa15/ConnectMe/internal/core/domain"
+	"github.com/Ndraaa15/ConnectMe/internal/core/dto"
 	"github.com/Ndraaa15/ConnectMe/internal/core/port"
 	"gorm.io/gorm"
 )
@@ -46,18 +47,25 @@ func (r *OrderRepositoryClient) CreateOrder(ctx context.Context, data *domain.Or
 	return r.q.Debug().WithContext(ctx).Model(&domain.Order{}).Create(data).Error
 }
 
-func (r *OrderRepositoryClient) GetOrderByID(ctx context.Context, id string) (*domain.Order, error) {
+func (r *OrderRepositoryClient) GetOrderByID(ctx context.Context, id string) (domain.Order, error) {
 	var order domain.Order
-	err := r.q.Debug().WithContext(ctx).Where("id = ?", id).First(&order).Error
-	return &order, err
+	err := r.q.Debug().WithContext(ctx).Model(&domain.Order{}).Where("id = ?", id).First(&order).Error
+	return order, err
 }
 
-func (r *OrderRepositoryClient) GetOrders(ctx context.Context) ([]*domain.Order, error) {
-	var orders []*domain.Order
-	err := r.q.Debug().WithContext(ctx).Find(&orders).Error
+func (r *OrderRepositoryClient) GetOrdersByUserID(ctx context.Context, userID string, filter dto.GetOrderFilter) ([]domain.Order, error) {
+	var orders []domain.Order
+
+	queryBuilder := r.q.Debug().WithContext(ctx).Preload("Worker.Tag").Preload("Payment").Model(&domain.Order{}).Where("user_id = ?", userID)
+
+	if filter.Status != nil {
+		queryBuilder = queryBuilder.Where("order_status IN ?", filter.Status)
+	}
+
+	err := queryBuilder.Find(&orders).Error
+	if err != nil {
+		return []domain.Order{}, err
+	}
+
 	return orders, err
-}
-
-func (r *OrderRepositoryClient) CreateAddressOrder(ctx context.Context, data *domain.AddressOrder) error {
-	return r.q.Debug().WithContext(ctx).Model(&domain.AddressOrder{}).Create(data).Error
 }

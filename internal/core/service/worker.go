@@ -95,7 +95,7 @@ func (worker *WorkerService) GetWorker(ctx context.Context, workerID string) (dt
 
 func formatWorkerResponse(worker *domain.Worker, workerResp *dto.WorkerResponse) {
 	*workerResp = dto.WorkerResponse{
-		ID:         worker.ID.String(),
+		ID:         worker.ID,
 		Name:       worker.Name,
 		LowerPrice: worker.LowerPrice,
 		Image:      worker.Image,
@@ -105,7 +105,7 @@ func formatWorkerResponse(worker *domain.Worker, workerResp *dto.WorkerResponse)
 
 func formatWorkerDetailResponse(worker *domain.Worker, workerResp *dto.WorkerDetailResponse) {
 	*workerResp = dto.WorkerDetailResponse{
-		ID:             worker.ID.String(),
+		ID:             worker.ID,
 		Name:           worker.Name,
 		LowerPrice:     worker.LowerPrice,
 		Image:          worker.Image,

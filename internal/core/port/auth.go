@@ -5,7 +5,6 @@ import (
 
 	"github.com/Ndraaa15/ConnectMe/internal/core/domain"
 	"github.com/Ndraaa15/ConnectMe/internal/core/dto"
-	"github.com/google/uuid"
 )
 
 type AuthRepositoryItf interface {
@@ -22,7 +21,7 @@ type AuthRepositoryClientItf interface {
 }
 
 type AuthServiceItf interface {
-	Register(ctx context.Context, req dto.SignUpRequest) (uuid.UUID, error)
-	Verify(ctx context.Context, req dto.VerifyAccountRequest) (uuid.UUID, error)
+	Register(ctx context.Context, req dto.SignUpRequest) (string, error)
+	Verify(ctx context.Context, req dto.VerifyAccountRequest) (string, error)
 	Login(ctx context.Context, req dto.SignInRequest) (string, error)
 }

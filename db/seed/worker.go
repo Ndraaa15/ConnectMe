@@ -11,7 +11,7 @@ func WorkerSeeder() Seeder {
 	return func(db *gorm.DB) error {
 		workers := []domain.Worker{
 			{
-				ID:             uuid.MustParse("079ca082-37c0-44d2-a648-f83bf482c4a3"),
+				ID:             "079ca082-37c0-44d2-a648-f83bf482c4a3",
 				Name:           "John Doe",
 				TagID:          1,
 				Description:    "Experienced plumber with over 5 years of work.",
@@ -32,7 +32,7 @@ func WorkerSeeder() Seeder {
 				WorkHour: pq.StringArray{"09:00", "17:00", "18:00", "19:00", "20:00"},
 			},
 			{
-				ID:             uuid.MustParse("fa35118b-1c30-48cb-a2de-2ccb3fa3281c"),
+				ID:             "fa35118b-1c30-48cb-a2de-2ccb3fa3281c",
 				Name:           "Jack Doe",
 				TagID:          2,
 				Description:    "Experienced electrician with over 5 years of work.",

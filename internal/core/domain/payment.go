@@ -2,19 +2,17 @@ package domain
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Payment struct {
-	PaymentID         uuid.UUID     `gorm:"varchar(36);primaryKey"`
-	OrderID           uuid.UUID     `gorm:"type:varchar(36)"`
-	ServiceFee        float64       `gorm:"type:decimal"`
-	TotalServicePrice float64       `gorm:"type:decimal"`
-	TotalPrice        float64       `gorm:"type:decimal"`
-	PaymentType       PaymentType   `gorm:"type:integer"`
-	PromoCode         string        `gorm:"type:varchar(255)"`
-	Status            StatusPayment `gorm:"type:integer"`
+	ID                string        `gorm:"varchar(36);primaryKey"`
+	OrderID           string        `gorm:"type:varchar(255);not null"`
+	ServiceFee        float64       `gorm:"type:decimal;not null"`
+	TotalServicePrice float64       `gorm:"type:decimal;not null"`
+	TotalPrice        float64       `gorm:"type:decimal;not null"`
+	PaymentType       PaymentType   `gorm:"type:integer;not null"`
+	PromoCode         string        `gorm:"type:varchar(255);not null"`
+	Status            StatusPayment `gorm:"type:integer;not null"`
 	CreatedAt         time.Time     `gorm:"timestamp;autoCreateTime"`
 	UpdatedAt         time.Time     `gorm:"timestamp;autoUpdateTime"`
 }

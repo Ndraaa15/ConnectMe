@@ -6,7 +6,6 @@ import (
 
 	"github.com/Ndraaa15/ConnectMe/internal/core/domain"
 	"github.com/Ndraaa15/ConnectMe/internal/core/port"
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
@@ -14,7 +13,7 @@ import (
 // this is needed because, there was lower price that i got from query so i need to specify the column name
 // and also i don't want that table also migrating
 type WorkerDB struct {
-	ID             uuid.UUID              `gorm:"type:varchar(36);primaryKey"`
+	ID             string                 `gorm:"type:varchar(36);primaryKey"`
 	Name           string                 `gorm:"type:varchar(255)"`
 	TagID          uint64                 `gorm:"type:integer"`
 	Tag            domain.Tag             `gorm:"references:ID;foreignKey:TagID"`

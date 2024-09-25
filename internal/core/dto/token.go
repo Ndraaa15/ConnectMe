@@ -2,18 +2,16 @@ package dto
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type TokenPayload struct {
-	ID        uuid.UUID `json:"id"`
+	ID        string    `json:"id"`
 	Role      string    `json:"role"`
 	IssuedAt  time.Time `json:"iat"`
 	ExpiresAt time.Time `json:"exp"`
 }
 
-func NewPayload(id uuid.UUID, duration time.Duration, role string) TokenPayload {
+func NewPayload(id string, duration time.Duration, role string) TokenPayload {
 	payload := TokenPayload{
 		ID:        id,
 		Role:      role,
