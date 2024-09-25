@@ -3,7 +3,6 @@ package rest
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -37,6 +36,7 @@ func (order *OrderHandler) Mount(router fiber.Router) {
 	orderRouter.Post("", order.CreateOrder)
 	orderRouter.Get("", order.GetOrders)
 	orderRouter.Get("/:id", order.GetOrder)
+	orderRouter.Patch("/:id", order.UpdateOrder)
 }
 
 func (order *OrderHandler) CreateOrder(c *fiber.Ctx) error {
@@ -108,8 +108,6 @@ func (r *OrderHandler) GetOrders(c *fiber.Ctx) error {
 			errChan <- err
 		}
 
-		fmt.Println("filter", filter)
-
 		orders, err := r.service.GetOrders(ctx, userID, filter)
 		if err != nil {
 			errChan <- err
@@ -165,6 +163,51 @@ func (r *OrderHandler) GetOrder(c *fiber.Ctx) error {
 	}
 }
 
+func (r *OrderHandler) UpdateOrder(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
+	defer cancel()
+
+	var (
+		err error
+	)
+
+	errChan := make(chan error, 1)
+
+	orderID := c.Params("id")
+	go func() {
+		var req dto.UpdateOrderRequest
+		if err := c.BodyParser(&req); err != nil {
+			errChan <- err
+			return
+		}
+
+		if err := r.validator.Struct(req); err != nil {
+			errChan <- err
+			return
+		}
+
+		err := r.service.UpdateOrder(ctx, orderID, req)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		errChan <- nil
+	}()
+
+	select {
+	case <-ctx.Done():
+		return errx.New(fiber.StatusRequestTimeout, "request timeout", errors.New("REQUEST TIMEOUT"))
+	case err = <-errChan:
+		if err != nil {
+			return err
+		}
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "Order Updated",
+		})
+	}
+}
+
 func parseFilterGetOrders(c *fiber.Ctx) (dto.GetOrderFilter, error) {
 	filter := dto.GetOrderFilter{}
 
@@ -172,7 +215,7 @@ func parseFilterGetOrders(c *fiber.Ctx) (dto.GetOrderFilter, error) {
 		statusesQuery := strings.Split(statusQuery, ",")
 		statuses := []domain.StatusOrder{}
 		for _, s := range statusesQuery {
-			s, err := parseStatusOrder(s)
+			s, err := domain.ParseStatusOrder(s)
 			if err != nil {
 				return dto.GetOrderFilter{}, err
 			}
@@ -182,17 +225,4 @@ func parseFilterGetOrders(c *fiber.Ctx) (dto.GetOrderFilter, error) {
 	}
 
 	return filter, nil
-}
-
-func parseStatusOrder(status string) (domain.StatusOrder, error) {
-	switch status {
-	case "on_going":
-		return domain.StatusOrderOnGoing, nil
-	case "completed":
-		return domain.StatusOrderFinished, nil
-	case "canceled":
-		return domain.StatusOrderCanceled, nil
-	default:
-		return domain.StatusOrderUnknown, errx.New(fiber.StatusBadRequest, "invalid status order", errors.New("invalid status order"))
-	}
 }

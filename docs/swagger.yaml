@@ -356,7 +356,7 @@ paths:
                   properties:
                     paymentMethod:
                       type: string
-                      example: Gopay
+                      example: Gopay,BCA Virtual Account, BNI Virtua Account, Permata Virtual Account, BRI Virtual Account, ShopeePay
                     promoCode:
                       type: string
                       example: INDRA123
@@ -562,7 +562,42 @@ paths:
                               example: 150000
                       serviceFee:
                         type: integer
-                        example: 5000
+                        example: 500
+
+    patch:
+      tags:
+        - order
+      summary: Create order
+      description: Create order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Order id
+          schema:
+            type: string
+            example: CM-1727237477
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: finished,canceled,on_going
+      responses:
+        "200":
+          description: A Message Update Order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Order Updated
 components:
   securitySchemes:
     bearerAuth:

@@ -80,3 +80,7 @@ func (r *OrderRepositoryClient) GetOrdersByUserID(ctx context.Context, userID st
 
 	return orders, err
 }
+
+func (r *OrderRepositoryClient) UpdateOrder(ctx context.Context, data *domain.Order) error {
+	return r.q.Debug().WithContext(ctx).Model(&domain.Order{}).Where("order_id = ?", data.OrderID).Updates(data).Error
+}

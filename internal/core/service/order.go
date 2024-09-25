@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -240,4 +241,53 @@ func formatOrderDetailResponse(order *domain.Order, orderDetailResponse *dto.Ord
 		Location:        order.Address.Street,
 		ServiceFee:      order.Payment.ServiceFee,
 	}
+}
+
+func (s *OrderService) UpdateOrder(ctx context.Context, orderID string, req dto.UpdateOrderRequest) error {
+	repositoryClient := s.repository.NewOrderRepositoryClient(true)
+
+	var (
+		err error
+	)
+
+	defer func() {
+		if err != nil {
+			if errTx := repositoryClient.Rollback(); errTx != nil {
+				err = errTx
+			}
+		}
+	}()
+
+	orderData, err := repositoryClient.GetOrderByID(ctx, orderID)
+	if err != nil {
+		return err
+	}
+	fmt.Println(orderData)
+	orderData, err = parseUpdateOrder(orderData, req)
+	if err != nil {
+		return err
+	}
+
+	if err := repositoryClient.UpdateOrder(ctx, &orderData); err != nil {
+		return err
+	}
+
+	if err := repositoryClient.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func parseUpdateOrder(order domain.Order, req dto.UpdateOrderRequest) (domain.Order, error) {
+	if req.Status != "" {
+		status, err := domain.ParseStatusOrder(req.Status)
+		if err != nil {
+			return order, err
+		}
+
+		order.OrderStatus = status
+	}
+
+	return order, nil
 }

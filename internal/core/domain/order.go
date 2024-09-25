@@ -1,8 +1,11 @@
 package domain
 
 import (
+	"errors"
 	"time"
 
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
+	"github.com/gofiber/fiber/v2"
 	"github.com/lib/pq"
 )
 
@@ -53,4 +56,17 @@ func (s StatusOrder) String() string {
 
 func (s StatusOrder) Value() uint64 {
 	return uint64(s)
+}
+
+func ParseStatusOrder(status string) (StatusOrder, error) {
+	switch status {
+	case "on_going":
+		return StatusOrderOnGoing, nil
+	case "finished":
+		return StatusOrderFinished, nil
+	case "canceled":
+		return StatusOrderCanceled, nil
+	default:
+		return StatusOrderUnknown, errx.New(fiber.StatusBadRequest, "invalid status order", errors.New("invalid status order"))
+	}
 }
