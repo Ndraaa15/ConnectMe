@@ -1,7 +1,6 @@
 .env
-prod.env
 .vscode
-/log
-/tmp
+log/*
+tmp
 /api
-/bin
+bin
