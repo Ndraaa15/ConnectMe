@@ -39,11 +39,17 @@ func (auth *AuthService) Register(ctx context.Context, req dto.SignUpRequest) (u
 		return uuid.Nil, err
 	}
 
+	role, err := parseAccountRole(req.Role)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
 	user := domain.User{
 		ID:       uuid.New(),
 		FullName: req.FullName,
 		Email:    req.Email,
 		Password: hashedPassword,
+		Role:     role,
 		Phone:    req.Phone,
 	}
 
@@ -122,10 +128,21 @@ func (auth *AuthService) Login(ctx context.Context, req dto.SignInRequest) (stri
 		return "", errx.New(fiber.StatusBadRequest, "user email or password invalid", errors.New("user email or password invalid, please check again"))
 	}
 
-	token, err := auth.token.Encode(dto.NewPayload(user.ID, 72*time.Hour))
+	token, err := auth.token.Encode(dto.NewPayload(user.ID, 72*time.Hour, user.Role.String()))
 	if err != nil {
 		return "", err
 	}
 
 	return token, nil
+}
+
+func parseAccountRole(role string) (domain.AccountRole, error) {
+	switch role {
+	case "user":
+		return domain.RoleUser, nil
+	case "worker":
+		return domain.RoleWorker, nil
+	default:
+		return domain.RoleUnknown, errx.New(fiber.StatusBadRequest, "input role is unknown", errors.New("invalid role"))
+	}
 }

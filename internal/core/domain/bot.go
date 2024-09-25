@@ -8,6 +8,6 @@ type Bot struct {
 	Picture   string    `gorm:"type:text"`
 	Response  string    `gorm:"type:text"`
 	Keyword   []string  `gorm:"type:text[]"`
-	CreatedAt time.Time `gorm:"timestampz;autoCreateTime"`
-	UpdatedAt time.Time `gorm:"timestampz;autoUpdateTime"`
+	CreatedAt time.Time `gorm:"timestamp;autoCreateTime"`
+	UpdatedAt time.Time `gorm:"timestamp;autoUpdateTime"`
 }

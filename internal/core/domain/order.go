@@ -3,30 +3,52 @@ package domain
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
 type Order struct {
-	OrderID       string        `gorm:"type:varchar(36)"`
-	Date          time.Time     `gorm:"type:timestampz"`
-	Time          time.Time     `gorm:"type:timestampz"`
+	OrderID       uuid.UUID     `gorm:"type:varchar(36);primaryKey"`
+	UserID        uuid.UUID     `gorm:"type:varchar(36)"`
+	WorkerID      uuid.UUID     `gorm:"type:varchar(36)"`
+	Date          time.Time     `gorm:"type:timestamp"`
+	Time          time.Time     `gorm:"type:timestamp"`
 	WorkerService pq.Int64Array `gorm:"type:integer[]"`
-	Address       string        `gorm:"type:text"`
-	Type          string        `gorm:"type:text"`
-	DetailAddress string        `gorm:"type:text"`
-	PaymentType   string        `gorm:"type:varchar(255)"`
-	PromoCode     string        `gorm:"type:varchar(255)"`
-	ServiceFee    float64       `gorm:"type:decimal"`
-	TotalPrice    float64       `gorm:"type:decimal"`
-	OrderStatus   OrderStatus   `gorm:"type:integer"`
-	CreatedAt     time.Time     `gorm:"timestampz;autoCreateTime"`
-	UpdateAt      time.Time     `gorm:"timestampz;autoUpdateTime"`
+	Address       AddressOrder  `gorm:"references:OrderID;foreignKey:OrderID;constraint:OnDelete:CASCADE"`
+	OrderStatus   StatusOrder   `gorm:"type:integer"`
+	CreatedAt     time.Time     `gorm:"timestamp;autoCreateTime"`
+	UpdateAt      time.Time     `gorm:"timestamp;autoUpdateTime"`
 }
 
-type OrderStatus uint64
+type AddressOrder struct {
+	OrderID       uuid.UUID `gorm:"type:varchar(36);primaryKey"`
+	Street        string    `gorm:"type:text;not null"`
+	Latitude      float64   `gorm:"type:decimal;not null"`
+	Longitude     float64   `gorm:"type:decimal;not null"`
+	AddressType   string    `gorm:"type:text;not null"`
+	DetailAddress string    `gorm:"type:text"`
+	CreatedAt     time.Time `gorm:"timestamp;autoCreateTime"`
+	UpdateAt      time.Time `gorm:"timestamp;autoUpdateTime"`
+}
+
+type StatusOrder uint64
 
 var (
-	OnProcess OrderStatus = 1
-	Finished  OrderStatus = 2
-	Canceled  OrderStatus = 3
+	StatusOrderOnGoing  StatusOrder = 1
+	StatusOrderFinished StatusOrder = 2
+	StatusOrderCanceled StatusOrder = 3
 )
+
+var OrderStatusMap = map[StatusOrder]string{
+	StatusOrderOnGoing:  "On Going",
+	StatusOrderFinished: "Finished",
+	StatusOrderCanceled: "Canceled",
+}
+
+func (s StatusOrder) String() string {
+	return OrderStatusMap[s]
+}
+
+func (s StatusOrder) Value() uint64 {
+	return uint64(s)
+}

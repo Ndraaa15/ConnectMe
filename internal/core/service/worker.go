@@ -46,6 +46,7 @@ func (worker *WorkerService) GetWorkers(ctx context.Context) ([]dto.WorkerRespon
 }
 
 func (worker *WorkerService) GetWorker(ctx context.Context, workerID string) (dto.WorkerDetailResponse, error) {
+	// Adding field is available in time workhour
 	repositoryClient := worker.repository.NewWorkerRepositoryClient(false)
 
 	data, err := repositoryClient.GetWorker(ctx, workerID)

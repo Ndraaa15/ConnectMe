@@ -28,8 +28,9 @@ func UserSeeder() Seeder {
 				Email:    "indrabrata599@gmail.com",
 				Phone:    "+628123456789",
 				Password: hashedPassword,
-				Gender:   domain.Male,
+				Gender:   domain.GenderMale,
 				Birth:    birth,
+				Role:     domain.RoleUser,
 				IsActive: true,
 			},
 			{
@@ -38,8 +39,9 @@ func UserSeeder() Seeder {
 				Email:    "sandogi@gmail.com",
 				Phone:    "+628123456111",
 				Password: hashedPassword,
-				Gender:   domain.Male,
+				Gender:   domain.GenderMale,
 				Birth:    birth,
+				Role:     domain.RoleUser,
 				IsActive: true,
 			},
 		}

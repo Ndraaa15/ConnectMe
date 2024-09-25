@@ -1,19 +1,25 @@
 include .env
 
+.PHONY: build
 build:
 	go build -o bin/$(APP_NAME) cmd/app/main.go
 
+.PHONY: air
 air: 
-	-air -c .air.toml
+	air -c .air.toml
 
-migrate-up:
-	-go run cmd/app/main.go migrate -action up
+.PHONY: migrate-up
+migrate-up: build
+	./bin/$(APP_NAME) migrate -action up
 
-migrate-down:
-	-go run cmd/app/main.go migrate -action down
+.PHONY: migrate-down
+migrate-down: build
+	./bin/$(APP_NAME) migrate -action down
 
-run:
-	-go run cmd/app/main.go
+.PHONY: run
+run: build
+	./bin/$(APP_NAME)
 
-seed:
-	-go run cmd/app/main.go seed
+.PHONY: test
+seed: build
+	./bin/$(APP_NAME) seed

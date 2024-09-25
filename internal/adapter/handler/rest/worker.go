@@ -28,8 +28,11 @@ func NewWorkerHandler(service port.WorkerServiceItf, validator *validator.Valida
 
 func (worker *WorkerHandler) Mount(router fiber.Router) {
 	workerRouter := router.Group("/workers")
-	workerRouter.Get(("/"), middleware.Request(), middleware.Authentication(worker.token), worker.GetWorkers)
-	workerRouter.Get("/:id", middleware.Request(), middleware.Authentication(worker.token), worker.GetWorker)
+
+	workerRouter.Use(middleware.Request())
+	workerRouter.Use(middleware.Authentication(worker.token, "user"))
+	workerRouter.Get("/", worker.GetWorkers)
+	workerRouter.Get("/:id", worker.GetWorker)
 }
 
 func (worker *WorkerHandler) GetWorkers(c *fiber.Ctx) error {

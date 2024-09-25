@@ -18,6 +18,9 @@ func Migrate(env env.Database, action string) {
 			&domain.WorkerService{},
 			&domain.Tag{},
 			&domain.Review{},
+			&domain.Order{},
+			&domain.AddressOrder{},
+			&domain.Payment{},
 		); err != nil {
 			log.Fatal().Err(err).Msg("Failed to migrate")
 		}
@@ -28,6 +31,9 @@ func Migrate(env env.Database, action string) {
 			&domain.WorkerService{},
 			&domain.Tag{},
 			&domain.Review{},
+			&domain.Order{},
+			&domain.AddressOrder{},
+			&domain.Payment{},
 		); err != nil {
 			log.Fatal().Err(err).Msg("Failed to drop")
 		}

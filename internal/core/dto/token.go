@@ -8,13 +8,15 @@ import (
 
 type TokenPayload struct {
 	ID        uuid.UUID `json:"id"`
+	Role      string    `json:"role"`
 	IssuedAt  time.Time `json:"iat"`
 	ExpiresAt time.Time `json:"exp"`
 }
 
-func NewPayload(id uuid.UUID, duration time.Duration) TokenPayload {
+func NewPayload(id uuid.UUID, duration time.Duration, role string) TokenPayload {
 	payload := TokenPayload{
 		ID:        id,
+		Role:      role,
 		IssuedAt:  time.Now(),
 		ExpiresAt: time.Now().Add(duration),
 	}

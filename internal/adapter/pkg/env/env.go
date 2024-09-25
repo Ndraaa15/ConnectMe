@@ -9,13 +9,14 @@ import (
 
 type (
 	Env struct {
-		App      App
-		Database Database
-		Cache    Cache
-		Email    Email
-		Storage  Storage
-		Gemini   Gemini
-		Token    Token
+		App            App
+		Database       Database
+		Cache          Cache
+		Email          Email
+		Storage        Storage
+		Gemini         Gemini
+		Token          Token
+		PaymentGateway PaymentGateway
 	}
 
 	App struct {
@@ -63,6 +64,10 @@ type (
 
 	Token struct {
 		Secret string
+	}
+
+	PaymentGateway struct {
+		ApiKey string
 	}
 )
 
@@ -128,14 +133,19 @@ func NewEnv() (*Env, error) {
 		Secret: os.Getenv("TOKEN_SECRET_HEX"),
 	}
 
+	paymentGateway := PaymentGateway{
+		ApiKey: os.Getenv("PAYMENT_GATEWAY_API_KEY"),
+	}
+
 	env := &Env{
-		App:      app,
-		Database: database,
-		Cache:    cache,
-		Email:    email,
-		Storage:  storage,
-		Gemini:   gemini,
-		Token:    token,
+		App:            app,
+		Database:       database,
+		Cache:          cache,
+		Email:          email,
+		Storage:        storage,
+		Gemini:         gemini,
+		Token:          token,
+		PaymentGateway: paymentGateway,
 	}
 
 	return env, nil

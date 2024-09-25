@@ -12,6 +12,10 @@ servers:
 tags:
   - name: auth
     description: Operations about user authentication
+  - name: workers
+    description: Operations about workers
+  - name: order
+    description: Operations about order
 
 paths:
   /auth/signup:
@@ -133,12 +137,263 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
+                  message:
                     type: string
-                    example: 4b6e61c5-c231-4ab9-979d-xxxxxxxxxxxx
-                  name:
+                    example: List workers
+                  workers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 079ca082-37c0-44d2-a648-f83bf482c4a3
+                        name:
+                          type: string
+                          example: John Doe
+                        tag:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            tag:
+                              type: string
+                              example: Plumber
+                            specialization:
+                              type: string
+                              example: Plumbing
+                        lower_price:
+                          type: integer
+                          example: 150000
+                        image:
+                          type: string
+                          example: https://arcudskzafkijqukfool.supabase.co/storage/v1/object/public/connect-me/professional-plumber.jpg
+                        review:
+                          type: object
+                          properties:
+                            rating:
+                              type: number
+                              format: float
+                              example: 4
+                            total_rating:
+                              type: integer
+                              example: 2
+  /workers/{id}:
+    get:
+      tags:
+        - workers
+      summary: Get worker by id
+      description: Get worker by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Worker id
+          schema:
+            type: string
+            example: 4b6e61c5-c231-4ab9-979d-xxxxxxxxxxxx
+      responses:
+        "200":
+          description: A JSON with worker
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
                     type: string
-                    example: Indra
-                  email:
+                    example: Detail worker
+                  worker:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 079ca082-37c0-44d2-a648-f83bf482c4a3
+                      name:
+                        type: string
+                        example: John Doe
+                      tag:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          tag:
+                            type: string
+                            example: Plumber
+                          specialization:
+                            type: string
+                            example: Plumbing
+                      description:
+                        type: string
+                        example: Experienced plumber with over 5 years of work.
+                      work_experience:
+                        type: integer
+                        example: 5
+                      lower_price:
+                        type: integer
+                        example: 150000
+                      worker_services:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 5
+                            service:
+                              type: string
+                              example: Leak Repair
+                            price:
+                              type: integer
+                              example: 150000
+                      work_hour:
+                        type: array
+                        items:
+                          type: string
+                          example: "09:00"
+                      image:
+                        type: string
+                        example: https://arcudskzafkijqukfool.supabase.co/storage/v1/object/public/connect-me/professional-plumber.jpg
+                      review:
+                        type: object
+                        properties:
+                          rating:
+                            type: number
+                            format: float
+                            example: 4
+                          total_rating:
+                            type: integer
+                            example: 2
+                          reviews_detail:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  example: 1
+                                name:
+                                  type: string
+                                  example: Gede Indra Adi Brata
+                                review:
+                                  type: string
+                                  example: He is very professional and fast in fixing the leak in my house. I will definitely call him again if I have another problem.
+                                rating:
+                                  type: number
+                                  format: float
+                                  example: 4.5
+                                time_sent:
+                                  type: string
+                                  example: 4 menit lalu
+                          total_review:
+                            type: integer
+                            example: 2
+
+  /orders:
+    post:
+      tags:
+        - order
+      summary: Create order
+      description: Create order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workerID:
+                  type: string
+                  example: 079ca082-37c0-44d2-a648-f83bf482c4a3
+                workerService:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2]
+                orderAddress:
+                  type: object
+                  properties:
+                    street:
+                      type: string
+                      example: Jl. Raya Kedungkandang
+                    latitude:
+                      type: number
+                      format: float
+                      example: -7.9676
+                    longitude:
+                      type: number
+                      format: float
+                      example: 112.6581
+                    addressType:
+                      type: string
+                      example: rumah
+                    detailAddress:
+                      type: string
+                      example: depan indomaret
+                date:
+                  type: string
+                  example: 20 October 2021
+                time:
+                  type: string
+                  example: 08:00
+                payment:
+                  type: object
+                  properties:
+                    paymentMethod:
+                      type: string
+                      example: Gopay
+                    promoCode:
+                      type: string
+                      example: INDRA123
+      responses:
+        "200":
+          description: A JSON with order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
                     type: string
-                    example:
+                    example: Order Created
+                  transaction:
+                    type: object
+                    properties:
+                      limitTransactionDate:
+                        type: string
+                        example: 2024-09-25 08:55:52
+                      totalPrice:
+                        type: integer
+                        example: 315000
+                      virtualAccount:
+                        type: object
+                        properties:
+                          virtualAccountNumber:
+                            type: string
+                            example: 300584103335182325
+                          bankName:
+                            type: string
+                            example: bri
+                      eWallet:
+                        type: object
+                        properties:
+                          actions:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                  example: generate-qr-code
+                                url:
+                                  type: string
+                                  example: https://api.sandbox.midtrans.com/v2/gopay/7814435b-6313-451a-89f4-52cfe0caf951/qr-code
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

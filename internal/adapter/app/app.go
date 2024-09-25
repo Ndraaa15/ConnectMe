@@ -10,6 +10,7 @@ import (
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/handler/rest"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/env"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/gomail"
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/midtrans"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/paseto"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/repository/cache"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/repository/postgresql"
@@ -64,6 +65,7 @@ func (a *App) RegisterHandler() {
 	cache := cache.NewRedisClient(a.cache)
 	token := paseto.NewPaseto(a.env.Token)
 	email := gomail.NewGomail(a.env.Email)
+	paymentGateway := midtrans.NewMidtrans(a.env.PaymentGateway)
 
 	authRepository := postgresql.NewAuthRepository(a.db)
 	authService := service.NewAuthService(authRepository, cache, token, email)
@@ -73,7 +75,15 @@ func (a *App) RegisterHandler() {
 	workerService := service.NewWorkerService(workerRepository)
 	workerHandler := rest.NewWorkerHandler(workerService, a.validator, token)
 
-	a.handlers = append(a.handlers, authHandler, workerHandler)
+	workerServiceRepository := postgresql.NewWorkerServiceRepository(a.db)
+
+	paymentRepository := postgresql.NewPaymentRepository(a.db)
+
+	order := postgresql.NewOrderRepository(a.db)
+	orderService := service.NewOrderService(order, cache, workerServiceRepository, paymentRepository, paymentGateway)
+	orderHandler := rest.NewOrderHandler(orderService, a.validator, token)
+
+	a.handlers = append(a.handlers, authHandler, workerHandler, orderHandler)
 }
 
 func (a *App) Run() error {
@@ -86,7 +96,7 @@ func (a *App) Run() error {
 	a.srv.Use(middleware.Request())
 	a.srv.Use(middleware.Cors())
 
-	log.Info().Msg("Server is running")
+	log.Info().Msgf("Server is running on %s:%s", a.env.App.Address, a.env.App.Port)
 	return a.srv.Listen(fmt.Sprintf("%s:%s", a.env.App.Address, a.env.App.Port))
 }
 

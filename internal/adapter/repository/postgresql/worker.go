@@ -11,6 +11,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// this is needed because, there was lower price that i got from query so i need to specify the column name
+// and also i don't want that table also migrating
 type WorkerDB struct {
 	ID             uuid.UUID              `gorm:"type:varchar(36);primaryKey"`
 	Name           string                 `gorm:"type:varchar(255)"`

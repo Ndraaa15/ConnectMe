@@ -10,7 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func Authentication(tokenSvc port.TokenItf) func(*fiber.Ctx) error {
+func Authentication(tokenSvc port.TokenItf, role ...string) func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		authorization := c.Get("Authorization")
 
@@ -30,7 +30,21 @@ func Authentication(tokenSvc port.TokenItf) func(*fiber.Ctx) error {
 			return err
 		}
 
-		c.Locals("userID", payload.ID)
+		if len(role) > 0 {
+			isRole := false
+			for _, r := range role {
+				if r == payload.Role {
+					isRole = true
+					break
+				}
+			}
+
+			if !isRole {
+				return errx.New(fiber.StatusUnauthorized, "unauthorized", errors.New("UNAUTHORIZED"))
+			}
+		}
+
+		c.Locals("userID", payload.ID.String())
 
 		return c.Next()
 	}
