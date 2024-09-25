@@ -6,6 +6,7 @@ require (
 	aidanwoods.dev/go-paseto v1.5.2
 	github.com/google/generative-ai-go v0.18.0
 	github.com/joho/godotenv v1.5.1
+	github.com/midtrans/midtrans-go v1.3.8
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/supabase-community/storage-go v0.7.0
 	golang.org/x/crypto v0.27.0
@@ -39,9 +40,7 @@ require (
 	github.com/jackc/pgx/v5 v5.5.5 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/midtrans/midtrans-go v1.3.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/xendit/xendit-go/v4 v4.3.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.51.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.54.0 // indirect

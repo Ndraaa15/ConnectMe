@@ -4,3 +4,4 @@ prod.env
 /log
 /tmp
 /api
+/bin
