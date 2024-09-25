@@ -1,5 +1,12 @@
 package dto
 
+type CreateReviewRequest struct {
+	WorkerID string  `json:"worker_id"`
+	UserID   string  `json:"user_id"`
+	Rating   float64 `json:"rating"`
+	Review   string  `json:"review"`
+}
+
 type ReviewResponse struct {
 	Rating        float64                `json:"rating"`
 	TotalRating   uint64                 `json:"total_rating"`
