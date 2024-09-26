@@ -3,8 +3,10 @@ package postgresql
 import (
 	"context"
 
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
 	"github.com/Ndraaa15/ConnectMe/internal/core/domain"
 	"github.com/Ndraaa15/ConnectMe/internal/core/port"
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
@@ -43,5 +45,9 @@ func (r *PaymentRepositoryClient) Rollback() error {
 }
 
 func (r *PaymentRepositoryClient) UpdatePayment(ctx context.Context, data *domain.Payment) error {
-	return r.q.Debug().WithContext(ctx).Model(&domain.Payment{}).Where("id = ?", data.ID).Save(data).Error
+	if err := r.q.Debug().WithContext(ctx).Model(&domain.Payment{}).Where("id = ?", data.ID).Save(data).Error; err != nil {
+		return errx.New(fiber.StatusInternalServerError, "failed to update payment", err)
+	}
+
+	return nil
 }

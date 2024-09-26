@@ -58,7 +58,7 @@ func (r *OrderRepositoryClient) GetOrderByID(ctx context.Context, id string) (do
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return domain.Order{}, errx.New(fiber.StatusNotFound, "order not found", err)
 		}
-		return domain.Order{}, err
+		return domain.Order{}, errx.New(fiber.StatusInternalServerError, "failed to get order", err)
 	}
 
 	return order, nil
@@ -75,12 +75,16 @@ func (r *OrderRepositoryClient) GetOrdersByUserID(ctx context.Context, userID st
 
 	err := queryBuilder.Find(&orders).Error
 	if err != nil {
-		return []domain.Order{}, err
+		return []domain.Order{}, errx.New(fiber.StatusInternalServerError, "failed to get orders", err)
 	}
 
-	return orders, err
+	return orders, nil
 }
 
 func (r *OrderRepositoryClient) UpdateOrder(ctx context.Context, data *domain.Order) error {
-	return r.q.Debug().WithContext(ctx).Model(&domain.Order{}).Where("order_id = ?", data.OrderID).Updates(data).Error
+	if err := r.q.Debug().WithContext(ctx).Model(&domain.Order{}).Where("order_id = ?", data.OrderID).Updates(data).Error; err != nil {
+		return errx.New(fiber.StatusInternalServerError, "failed to update order", err)
+	}
+
+	return nil
 }

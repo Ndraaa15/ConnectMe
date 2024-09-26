@@ -2,8 +2,10 @@ package rest
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
 	"github.com/Ndraaa15/ConnectMe/internal/core/dto"
 	"github.com/Ndraaa15/ConnectMe/internal/core/middleware"
 	"github.com/Ndraaa15/ConnectMe/internal/core/port"
@@ -34,35 +36,24 @@ func (auth *AuthHandler) Register(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
-	var (
-		err error
-	)
+	var req dto.SignUpRequest
+	if err := c.BodyParser(&req); err != nil {
+		return err
+	}
 
-	errChan := make(chan error, 1)
-	resChan := make(chan interface{}, 1)
+	if err := auth.validator.Struct(req); err != nil {
+		return err
+	}
 
-	go func() {
-		var req dto.SignUpRequest
-		if err := c.BodyParser(&req); err != nil {
-			errChan <- err
-		}
-
-		if err := auth.validator.Struct(req); err != nil {
-			errChan <- err
-		}
-
-		res, err := auth.service.Register(ctx, req)
-		if err != nil {
-			errChan <- err
-		}
-
-		resChan <- res
-	}()
+	res, err := auth.service.Register(ctx, req)
+	if err != nil {
+		return err
+	}
 
 	select {
-	case err = <-errChan:
-		return err
-	case res := <-resChan:
+	case <-ctx.Done():
+		return errx.New(fiber.StatusRequestTimeout, "request timeout", errors.New("REQUEST TIMEOUT"))
+	default:
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 			"message": "User created successfully",
 			"id":      res,
@@ -74,35 +65,24 @@ func (auth *AuthHandler) Verify(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
-	var (
-		err error
-	)
+	var req dto.VerifyAccountRequest
+	if err := c.BodyParser(&req); err != nil {
+		return err
+	}
 
-	errChan := make(chan error, 1)
-	resChan := make(chan interface{}, 1)
+	if err := auth.validator.Struct(req); err != nil {
+		return err
+	}
 
-	go func() {
-		var req dto.VerifyAccountRequest
-		if err := c.BodyParser(&req); err != nil {
-			errChan <- err
-		}
-
-		if err := auth.validator.Struct(req); err != nil {
-			errChan <- err
-		}
-
-		res, err := auth.service.Verify(ctx, req)
-		if err != nil {
-			errChan <- err
-		}
-
-		resChan <- res
-	}()
+	res, err := auth.service.Verify(ctx, req)
+	if err != nil {
+		return err
+	}
 
 	select {
-	case err = <-errChan:
-		return err
-	case res := <-resChan:
+	case <-ctx.Done():
+		return errx.New(fiber.StatusRequestTimeout, "request timeout", errors.New("REQUEST TIMEOUT"))
+	default:
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "User verified successfully",
 			"id":      res,
@@ -114,35 +94,24 @@ func (auth *AuthHandler) Login(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
-	var (
-		err error
-	)
+	var req dto.SignInRequest
+	if err := c.BodyParser(&req); err != nil {
+		return err
+	}
 
-	errChan := make(chan error, 1)
-	resChan := make(chan interface{}, 1)
+	if err := auth.validator.Struct(req); err != nil {
+		return err
+	}
 
-	go func() {
-		var req dto.SignInRequest
-		if err := c.BodyParser(&req); err != nil {
-			errChan <- err
-		}
-
-		if err := auth.validator.Struct(req); err != nil {
-			errChan <- err
-		}
-
-		res, err := auth.service.Login(ctx, req)
-		if err != nil {
-			errChan <- err
-		}
-
-		resChan <- res
-	}()
+	res, err := auth.service.Login(ctx, req)
+	if err != nil {
+		return err
+	}
 
 	select {
-	case err = <-errChan:
-		return err
-	case res := <-resChan:
+	case <-ctx.Done():
+		return errx.New(fiber.StatusRequestTimeout, "request timeout", errors.New("REQUEST TIMEOUT"))
+	default:
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "User login successfully",
 			"token":   res,

@@ -51,5 +51,7 @@ func GetTimeSinceCreation(createdAt time.Time) string {
 }
 
 func GenerateOrderCode() string {
-	return fmt.Sprintf("CM-%d", time.Now().Unix())
+	nanoTime := time.Now().UnixNano()
+	randomPart := GenerateCode(4)
+	return fmt.Sprintf("CM-%d-%s", nanoTime, randomPart)
 }

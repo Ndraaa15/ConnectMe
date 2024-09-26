@@ -135,9 +135,8 @@ func formatReviewDetailResponse(review *domain.Review, reviewResp *dto.ReviewDet
 	timeSent := util.GetTimeSinceCreation(review.CreatedAt)
 
 	*reviewResp = dto.ReviewDetailResponse{
-		ID:       review.ID,
 		Name:     review.User.FullName,
-		Review:   review.Description,
+		Review:   review.Review,
 		Rating:   review.Rating,
 		TimeSent: timeSent,
 	}

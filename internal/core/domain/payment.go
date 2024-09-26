@@ -28,6 +28,7 @@ const (
 	PaymentTypePermataVa PaymentType = 5
 	PaymentTypeGopay     PaymentType = 6
 	PaymentTypeShopeePay PaymentType = 7
+	PaymentCash          PaymentType = 8
 )
 
 var PaymentTypeMap = map[PaymentType]string{
@@ -38,6 +39,7 @@ var PaymentTypeMap = map[PaymentType]string{
 	PaymentTypePermataVa: "Permata Virtual Account",
 	PaymentTypeGopay:     "Gopay",
 	PaymentTypeShopeePay: "ShopeePay",
+	PaymentCash:          "Cash",
 }
 
 func (s PaymentType) String() string {

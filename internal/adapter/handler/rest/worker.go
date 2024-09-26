@@ -2,9 +2,11 @@ package rest
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"time"
 
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
 	"github.com/Ndraaa15/ConnectMe/internal/core/dto"
 	"github.com/Ndraaa15/ConnectMe/internal/core/middleware"
 	"github.com/Ndraaa15/ConnectMe/internal/core/port"
@@ -39,28 +41,20 @@ func (worker *WorkerHandler) GetWorkers(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
-	var (
-		err error
-	)
+	_, err := parseGetWorkersFilter(c)
+	if err != nil {
+		return err
+	}
 
-	errChan := make(chan error, 1)
-	resChan := make(chan interface{}, 1)
-
-	go func() {
-		_, err = parseGetWorkersFilter(c)
-
-		res, err := worker.service.GetWorkers(ctx)
-		if err != nil {
-			errChan <- err
-		}
-
-		resChan <- res
-	}()
+	res, err := worker.service.GetWorkers(ctx)
+	if err != nil {
+		return err
+	}
 
 	select {
-	case err = <-errChan:
-		return err
-	case res := <-resChan:
+	case <-ctx.Done():
+		return errx.New(fiber.StatusRequestTimeout, "request timeout", errors.New("REQUEST TIMEOUT"))
+	default:
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "List workers",
 			"workers": res,
@@ -73,27 +67,16 @@ func (worker *WorkerHandler) GetWorker(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
-	var (
-		err error
-	)
-
-	errChan := make(chan error, 1)
-	resChan := make(chan interface{}, 1)
-
-	go func() {
-		workerID := c.Params("id")
-		res, err := worker.service.GetWorker(ctx, workerID)
-		if err != nil {
-			errChan <- err
-		}
-
-		resChan <- res
-	}()
+	workerID := c.Params("id")
+	res, err := worker.service.GetWorker(ctx, workerID)
+	if err != nil {
+		return err
+	}
 
 	select {
-	case err = <-errChan:
-		return err
-	case res := <-resChan:
+	case <-ctx.Done():
+		return errx.New(fiber.StatusRequestTimeout, "request timeout", errors.New("REQUEST TIMEOUT"))
+	default:
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "Detail worker",
 			"worker":  res,

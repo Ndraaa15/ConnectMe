@@ -3,8 +3,10 @@ package postgresql
 import (
 	"context"
 
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
 	"github.com/Ndraaa15/ConnectMe/internal/core/domain"
 	"github.com/Ndraaa15/ConnectMe/internal/core/port"
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
@@ -45,5 +47,10 @@ func (r *WorkerServiceRepositoryClient) Rollback() error {
 func (r *WorkerServiceRepositoryClient) GetWorkerServicesByWorkerServiceIDs(ctx context.Context, workerServiceIDs []int64) ([]*domain.WorkerService, error) {
 	var workerServices []*domain.WorkerService
 	err := r.q.Debug().WithContext(ctx).Where("id IN ?", workerServiceIDs).Find(&workerServices).Error
-	return workerServices, err
+
+	if err != nil {
+		return nil, errx.New(fiber.StatusInternalServerError, "failed to get worker services", err)
+	}
+
+	return workerServices, nil
 }

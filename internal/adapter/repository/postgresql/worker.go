@@ -4,8 +4,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
 	"github.com/Ndraaa15/ConnectMe/internal/core/domain"
 	"github.com/Ndraaa15/ConnectMe/internal/core/port"
+	"github.com/gofiber/fiber/v2"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
@@ -97,7 +99,7 @@ func (r *WorkerRepositoryClient) GetWorkers(ctx context.Context) ([]domain.Worke
 		Model(&domain.Worker{}).
 		Select("workers.*, (SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, (SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id ) AS rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating").
 		Find(&workersDB).Error; err != nil {
-		return nil, err
+		return nil, errx.New(fiber.StatusInternalServerError, "failed to get workers", err)
 	}
 
 	var workers []domain.Worker
@@ -120,7 +122,7 @@ func (r *WorkerRepositoryClient) GetWorker(ctx context.Context, workerID string)
 		Select("workers.*, (SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, (SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id ) AS rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id AND reviews.description != '') AS total_review").
 		Where("id = ?", workerID).
 		First(&worker).Error; err != nil {
-		return domain.Worker{}, err
+		return domain.Worker{}, errx.New(fiber.StatusInternalServerError, "failed to get worker", err)
 	}
 
 	return worker.format(), nil

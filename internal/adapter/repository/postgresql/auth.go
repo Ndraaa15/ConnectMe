@@ -46,7 +46,11 @@ func (r *AuthRepositoryClient) Rollback() error {
 }
 
 func (r *AuthRepositoryClient) CreateUser(ctx context.Context, user *domain.User) error {
-	return r.q.Debug().WithContext(ctx).Model(&domain.User{}).Create(user).Error
+	if err := r.q.Debug().WithContext(ctx).Model(&domain.User{}).Create(user).Error; err != nil {
+		return errx.New(fiber.StatusInternalServerError, "failed to create user", err)
+	}
+
+	return nil
 }
 
 func (r *AuthRepositoryClient) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
@@ -56,6 +60,7 @@ func (r *AuthRepositoryClient) GetUserByEmail(ctx context.Context, email string)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return &domain.User{}, errx.New(fiber.StatusNotFound, "user not found", err)
 		}
+		return &domain.User{}, errx.New(fiber.StatusInternalServerError, "failed to get user", err)
 	}
 
 	return &user, nil
@@ -68,12 +73,16 @@ func (r *AuthRepositoryClient) GetUserByID(ctx context.Context, id string) (*dom
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return &domain.User{}, errx.New(fiber.StatusNotFound, "user not found", err)
 		}
-		return &domain.User{}, err
+		return &domain.User{}, errx.New(fiber.StatusInternalServerError, "failed to get user", err)
 	}
 
 	return &user, nil
 }
 
 func (r *AuthRepositoryClient) UpdateUser(ctx context.Context, user *domain.User) error {
-	return r.q.Debug().WithContext(ctx).Model(&domain.User{}).Where("id = ?", user.ID).Save(user).Error
+	if err := r.q.Debug().WithContext(ctx).Model(&domain.User{}).Where("id = ?", user.ID).Save(user).Error; err != nil {
+		return errx.New(fiber.StatusInternalServerError, "failed to update user", err)
+	}
+
+	return nil
 }

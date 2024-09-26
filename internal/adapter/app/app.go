@@ -83,7 +83,11 @@ func (a *App) RegisterHandler() {
 	orderService := service.NewOrderService(order, cache, workerServiceRepository, paymentRepository, paymentGateway)
 	orderHandler := rest.NewOrderHandler(orderService, a.validator, token)
 
-	a.handlers = append(a.handlers, authHandler, workerHandler, orderHandler)
+	reviewRepository := postgresql.NewReviewRepository(a.db)
+	reviewService := service.NewReviewService(reviewRepository, cache)
+	reviewHandler := rest.NewReviewHandler(reviewService, a.validator, token)
+
+	a.handlers = append(a.handlers, authHandler, workerHandler, orderHandler, reviewHandler)
 }
 
 func (a *App) Run() error {

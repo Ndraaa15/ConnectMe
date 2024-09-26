@@ -599,6 +599,47 @@ paths:
                     type: string
                     example: Order Updated
 
+  /reviews:
+    post:
+      tags:
+        - review
+      summary: Create review
+      description: Create review
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workerID:
+                  type: string
+                  example: 079ca082-37c0-44d2-a648-f83bf482c4a3
+                review:
+                  type: string
+                  example: He is very professional and fast in fixing the leak in my house. I will definitely call him again if I have another problem.
+                rating:
+                  type: number
+                  format: float
+                  example: 4.5
+      responses:
+        "200":
+          description: A JSON with review
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Review Created
 components:
   securitySchemes:
     bearerAuth:

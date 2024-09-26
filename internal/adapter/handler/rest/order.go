@@ -48,37 +48,24 @@ func (order *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 		return errx.New(fiber.StatusUnauthorized, "invalid user id from token", errors.New("UNAUTHORIZED"))
 	}
 
-	var (
-		err error
-	)
+	var req dto.CreateOrderRequest
+	if err := c.BodyParser(&req); err != nil {
+		return err
+	}
 
-	errChan := make(chan error, 1)
-	resChan := make(chan interface{}, 1)
+	if err := order.validator.Struct(req); err != nil {
+		return err
+	}
 
-	go func() {
-		var req dto.CreateOrderRequest
-		if err := c.BodyParser(&req); err != nil {
-			errChan <- err
-		}
-
-		if err := order.validator.Struct(req); err != nil {
-			errChan <- err
-		}
-
-		res, err := order.service.CreateOrder(ctx, req, userID)
-		if err != nil {
-			errChan <- err
-		}
-
-		resChan <- res
-	}()
+	res, err := order.service.CreateOrder(ctx, req, userID)
+	if err != nil {
+		return err
+	}
 
 	select {
 	case <-ctx.Done():
 		return errx.New(fiber.StatusRequestTimeout, "request timeout", errors.New("REQUEST TIMEOUT"))
-	case err = <-errChan:
-		return err
-	case res := <-resChan:
+	default:
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 			"message":     "Order Created",
 			"transaction": res,
@@ -95,36 +82,23 @@ func (r *OrderHandler) GetOrders(c *fiber.Ctx) error {
 		return errx.New(fiber.StatusUnauthorized, "invalid user id from token", errors.New("UNAUTHORIZED"))
 	}
 
-	var (
-		err error
-	)
+	filter, err := parseFilterGetOrders(c)
+	if err != nil {
+		return err
+	}
 
-	errChan := make(chan error, 1)
-	resChan := make(chan interface{}, 1)
-
-	go func() {
-		filter, err := parseFilterGetOrders(c)
-		if err != nil {
-			errChan <- err
-		}
-
-		orders, err := r.service.GetOrders(ctx, userID, filter)
-		if err != nil {
-			errChan <- err
-		}
-
-		resChan <- orders
-	}()
+	orders, err := r.service.GetOrders(ctx, userID, filter)
+	if err != nil {
+		return err
+	}
 
 	select {
 	case <-ctx.Done():
 		return errx.New(fiber.StatusRequestTimeout, "request timeout", errors.New("REQUEST TIMEOUT"))
-	case err = <-errChan:
-		return err
-	case res := <-resChan:
+	default:
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "Orders Fetched",
-			"orders":  res,
+			"orders":  orders,
 		})
 	}
 }
@@ -137,28 +111,20 @@ func (r *OrderHandler) GetOrder(c *fiber.Ctx) error {
 		err error
 	)
 
-	errChan := make(chan error, 1)
-	resChan := make(chan interface{}, 1)
-
 	orderID := c.Params("id")
-	go func() {
-		order, err := r.service.GetOrder(ctx, orderID)
-		if err != nil {
-			errChan <- err
-		}
 
-		resChan <- order
-	}()
+	order, err := r.service.GetOrder(ctx, orderID)
+	if err != nil {
+		return err
+	}
 
 	select {
 	case <-ctx.Done():
 		return errx.New(fiber.StatusRequestTimeout, "request timeout", errors.New("REQUEST TIMEOUT"))
-	case err = <-errChan:
-		return err
-	case res := <-resChan:
+	default:
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "Order Fetched",
-			"order":   res,
+			"order":   order,
 		})
 	}
 }
@@ -167,41 +133,25 @@ func (r *OrderHandler) UpdateOrder(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
-	var (
-		err error
-	)
-
-	errChan := make(chan error, 1)
-
 	orderID := c.Params("id")
-	go func() {
-		var req dto.UpdateOrderRequest
-		if err := c.BodyParser(&req); err != nil {
-			errChan <- err
-			return
-		}
 
-		if err := r.validator.Struct(req); err != nil {
-			errChan <- err
-			return
-		}
+	var req dto.UpdateOrderRequest
+	if err := c.BodyParser(&req); err != nil {
+		return err
+	}
 
-		err := r.service.UpdateOrder(ctx, orderID, req)
-		if err != nil {
-			errChan <- err
-			return
-		}
+	if err := r.validator.Struct(req); err != nil {
+		return err
+	}
 
-		errChan <- nil
-	}()
+	if err := r.service.UpdateOrder(ctx, orderID, req); err != nil {
+		return err
+	}
 
 	select {
 	case <-ctx.Done():
 		return errx.New(fiber.StatusRequestTimeout, "request timeout", errors.New("REQUEST TIMEOUT"))
-	case err = <-errChan:
-		if err != nil {
-			return err
-		}
+	default:
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "Order Updated",
 		})
