@@ -81,9 +81,10 @@ func (a *App) RegisterHandler() {
 
 	workerServiceRepository := postgresql.NewWorkerServiceRepository(a.db)
 	workerServiceService := service.NewWorkerServiceService(workerServiceRepository, cache)
+	workerServiceHandler := rest.NewWorkerServiceHandler(workerServiceService, a.validator, token)
 
-	order := postgresql.NewOrderRepository(a.db)
-	orderService := service.NewOrderService(order, cache, workerServiceService, paymentGateway)
+	orderRepository := postgresql.NewOrderRepository(a.db)
+	orderService := service.NewOrderService(orderRepository, cache, workerServiceService, paymentGateway)
 	orderHandler := rest.NewOrderHandler(orderService, a.validator, token)
 
 	reviewRepository := postgresql.NewReviewRepository(a.db)
@@ -98,7 +99,7 @@ func (a *App) RegisterHandler() {
 	botService := service.NewBotService(botRepository, genai, cache, workerService, storage)
 	botHandler := rest.NewBotHandler(botService, token, a.validator)
 
-	a.handlers = append(a.handlers, authHandler, workerHandler, orderHandler, reviewHandler, favouriteHandler, botHandler)
+	a.handlers = append(a.handlers, authHandler, workerHandler, workerServiceHandler, orderHandler, reviewHandler, favouriteHandler, botHandler)
 }
 
 func (a *App) Run() error {

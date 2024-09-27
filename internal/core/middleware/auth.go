@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
@@ -29,7 +30,7 @@ func Authentication(tokenSvc port.TokenItf, role ...string) func(*fiber.Ctx) err
 			log.Error().Err(err).Msg("Failed to decode token")
 			return err
 		}
-
+		fmt.Println("payload", payload)
 		if len(role) > 0 {
 			isRole := false
 			for _, r := range role {

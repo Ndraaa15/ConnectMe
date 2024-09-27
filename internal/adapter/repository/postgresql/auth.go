@@ -86,3 +86,11 @@ func (r *AuthRepositoryClient) UpdateUser(ctx context.Context, user *domain.User
 
 	return nil
 }
+
+func (r *AuthRepositoryClient) CreateWorker(ctx context.Context, worker *domain.Worker) error {
+	if err := r.q.Debug().WithContext(ctx).Model(&domain.Worker{}).Create(worker).Error; err != nil {
+		return errx.New(fiber.StatusInternalServerError, "failed to create worker", err)
+	}
+
+	return nil
+}

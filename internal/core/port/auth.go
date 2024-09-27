@@ -18,6 +18,7 @@ type AuthRepositoryClientItf interface {
 	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
 	GetUserByID(ctx context.Context, id string) (*domain.User, error)
 	UpdateUser(ctx context.Context, user *domain.User) error
+	CreateWorker(ctx context.Context, worker *domain.Worker) error
 }
 
 type AuthServiceItf interface {

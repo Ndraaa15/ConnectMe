@@ -770,7 +770,6 @@ paths:
                   message:
                     type: string
                     example: Favourite Created
-
   /bots:
     post:
       tags:

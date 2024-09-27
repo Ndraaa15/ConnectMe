@@ -53,6 +53,18 @@ func (auth *AuthService) Register(ctx context.Context, req dto.SignUpRequest) (s
 		Phone:    req.Phone,
 	}
 
+	if user.Role == domain.RoleWorker {
+		worker := domain.Worker{
+			ID:   user.ID,
+			Name: user.FullName,
+		}
+
+		err = repositoryClient.CreateWorker(ctx, &worker)
+		if err != nil {
+			return "", err
+		}
+	}
+
 	err = repositoryClient.CreateUser(ctx, &user)
 	if err != nil {
 		return "", err

@@ -143,7 +143,7 @@ func (r *WorkerRepositoryClient) GetWorker(ctx context.Context, workerID string)
 		Preload("Reviews.User").
 		Preload("Tag").
 		Model(&domain.Worker{}).
-		Select("workers.*, (SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, (SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id ) AS rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id AND reviews.description != '') AS total_review").
+		Select("workers.*, (SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, (SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id ) AS rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id AND reviews.review != '') AS total_review").
 		Where("id = ?", workerID).
 		First(&worker).Error; err != nil {
 		return domain.Worker{}, errx.New(fiber.StatusInternalServerError, "failed to get worker", err)

@@ -11,27 +11,27 @@ func TagSeeder() Seeder {
 			{
 				ID:             1,
 				Tag:            "Komputer",
-				Specialization: "Komputer",
+				Specialization: "Komputer/Perangkat Keras",
 			},
 			{
 				ID:             2,
 				Tag:            "Kebun",
-				Specialization: "Kebun",
+				Specialization: "Kebun/Taman",
 			},
 			{
 				ID:             3,
 				Tag:            "Desainer Grafis",
-				Specialization: "Desain",
+				Specialization: "Desain 2d/3d",
 			},
 			{
 				ID:             4,
-				Tag:            "Penulis Konten",
-				Specialization: "Penulisan",
+				Tag:            "Penulis",
+				Specialization: "Penulisan Konten",
 			},
 			{
 				ID:             5,
 				Tag:            "Fotografer",
-				Specialization: "Fotografi",
+				Specialization: "Fotografi Pernikahan",
 			},
 			{
 				ID:             6,

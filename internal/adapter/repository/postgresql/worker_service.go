@@ -54,3 +54,11 @@ func (r *WorkerServiceRepositoryClient) GetWorkerServicesByWorkerServiceIDs(ctx 
 
 	return workerServices, nil
 }
+
+func (r *WorkerServiceRepositoryClient) CreateWorkerService(ctx context.Context, data *domain.WorkerService) error {
+	if err := r.q.Debug().WithContext(ctx).Model(&domain.WorkerService{}).Create(data).Error; err != nil {
+		return errx.New(fiber.StatusInternalServerError, "failed to create worker service", err)
+	}
+
+	return nil
+}

@@ -63,4 +63,5 @@ func RegisterSeeder() {
 	seeders["tag"] = TagSeeder()
 	seeders["worker"] = WorkerSeeder()
 	seeders["review"] = ReviewSeeder()
+	seeders["order"] = OrderSeeder()
 }
