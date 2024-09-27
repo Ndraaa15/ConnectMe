@@ -18,6 +18,8 @@ tags:
     description: Operations about order
   - name: review
     description: Operations about review
+  - name: favourite
+    description: Operations about favourite
 paths:
   /auth/signup:
     post:
@@ -640,6 +642,133 @@ paths:
                   message:
                     type: string
                     example: Review Created
+
+  /favourites:
+    post:
+      tags:
+        - favourite
+      summary: Create favourite
+      description: Create favourite
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workerID:
+                  type: string
+                  example: 079ca082-37c0-44d2-a648-f83bf482c4a3
+      responses:
+        "201":
+          description: A JSON with review
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Favourite Created
+    get:
+      tags:
+        - favourite
+      summary: Create favourite
+      description: Create review
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer token
+      responses:
+        "200":
+          description: A JSON with review
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 079ca082-37c0-44d2-a648-f83bf482c4a3
+                        name:
+                          type: string
+                          example: John Doe
+                        tag:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            tag:
+                              type: string
+                              example: Plumber
+                            specialization:
+                              type: string
+                              example: Plumbing
+                        lower_price:
+                          type: integer
+                          example: 150000
+                        image:
+                          type: string
+                          example: https://arcudskzafkijqukfool.supabase.co/storage/v1/object/public/connect-me/professional-plumber.jpg
+                        review:
+                          type: object
+                          properties:
+                            rating:
+                              type: number
+                              format: float
+                              example: 4
+                            total_rating:
+                              type: integer
+                              example: 2
+
+  /favourites/{workerID}:
+    delete:
+      tags:
+        - favourite
+      summary: Get worker by id
+      description: Get worker by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Worker id
+          schema:
+            type: string
+            example: 4b6e61c5-c231-4ab9-979d-xxxxxxxxxxxx
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer token
+      responses:
+        "200":
+          description: A JSON with review
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Favourite Created
+
 components:
   securitySchemes:
     bearerAuth:

@@ -17,4 +17,5 @@ type WorkerServiceRepositoryClientItf interface {
 }
 
 type WorkerServiceServiceItf interface {
+	GetWorkerServicesByWorkerServiceIDs(ctx context.Context, workerServiceIDs []int64) ([]*domain.WorkerService, error)
 }

@@ -72,22 +72,25 @@ func (a *App) RegisterHandler() {
 	authHandler := rest.NewAuthHandler(authService, a.validator)
 
 	workerRepository := postgresql.NewWorkerRepository(a.db)
-	workerService := service.NewWorkerService(workerRepository)
+	workerService := service.NewWorkerService(workerRepository, cache)
 	workerHandler := rest.NewWorkerHandler(workerService, a.validator, token)
 
 	workerServiceRepository := postgresql.NewWorkerServiceRepository(a.db)
-
-	paymentRepository := postgresql.NewPaymentRepository(a.db)
+	workerServiceService := service.NewWorkerServiceService(workerServiceRepository, cache)
 
 	order := postgresql.NewOrderRepository(a.db)
-	orderService := service.NewOrderService(order, cache, workerServiceRepository, paymentRepository, paymentGateway)
+	orderService := service.NewOrderService(order, cache, workerServiceService, paymentGateway)
 	orderHandler := rest.NewOrderHandler(orderService, a.validator, token)
 
 	reviewRepository := postgresql.NewReviewRepository(a.db)
 	reviewService := service.NewReviewService(reviewRepository, cache)
 	reviewHandler := rest.NewReviewHandler(reviewService, a.validator, token)
 
-	a.handlers = append(a.handlers, authHandler, workerHandler, orderHandler, reviewHandler)
+	favouriteRepository := postgresql.NewFavouriteRepository(a.db)
+	favouriteService := service.NewFavouriteService(favouriteRepository, workerService, cache)
+	favouriteHandler := rest.NewFavouriteHandler(favouriteService, a.validator, token)
+
+	a.handlers = append(a.handlers, authHandler, workerHandler, orderHandler, reviewHandler, favouriteHandler)
 }
 
 func (a *App) Run() error {

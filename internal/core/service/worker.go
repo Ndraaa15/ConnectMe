@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/util"
@@ -12,11 +13,13 @@ import (
 
 type WorkerService struct {
 	repository port.WorkerRepositoryItf
+	cache      port.CacheItf
 }
 
-func NewWorkerService(repository port.WorkerRepositoryItf) *WorkerService {
+func NewWorkerService(repository port.WorkerRepositoryItf, cache port.CacheItf) *WorkerService {
 	return &WorkerService{
 		repository: repository,
+		cache:      cache,
 	}
 }
 
@@ -45,8 +48,34 @@ func (worker *WorkerService) GetWorkers(ctx context.Context) ([]dto.WorkerRespon
 	return workerResponses, nil
 }
 
+func (worker *WorkerService) GetWorkersByWorkerIDs(ctx context.Context, workerIDs []string) ([]dto.WorkerResponse, error) {
+	fmt.Println("from worker service", workerIDs)
+	repositoryClient := worker.repository.NewWorkerRepositoryClient(false)
+
+	data, err := repositoryClient.GetWorkersByWorkerIDs(ctx, workerIDs)
+	if err != nil {
+		return []dto.WorkerResponse{}, err
+	}
+
+	workerResponses := make([]dto.WorkerResponse, len(data))
+	var wg sync.WaitGroup
+
+	for i, worker := range data {
+		wg.Add(1)
+		go func(i int, worker domain.Worker) {
+			defer wg.Done()
+			formatWorkerResponse(&worker, &workerResponses[i])
+			formatTagResponse(&worker.Tag, &workerResponses[i].Tag)
+		}(i, worker)
+	}
+
+	wg.Wait()
+
+	return workerResponses, nil
+}
+
 func (worker *WorkerService) GetWorker(ctx context.Context, workerID string) (dto.WorkerDetailResponse, error) {
-	// Adding field is available in time workhour
+	// Todo : Adding field is available in time workhour
 	repositoryClient := worker.repository.NewWorkerRepositoryClient(false)
 
 	data, err := repositoryClient.GetWorker(ctx, workerID)

@@ -110,6 +110,29 @@ func (r *WorkerRepositoryClient) GetWorkers(ctx context.Context) ([]domain.Worke
 	return workers, nil
 }
 
+func (r *WorkerRepositoryClient) GetWorkersByWorkerIDs(ctx context.Context, workerIDs []string) ([]domain.Worker, error) {
+	var workersDB []WorkerDB
+
+	if err := r.q.Debug().
+		WithContext(ctx).
+		Preload("WorkerServices").
+		Preload("Tag").
+		Preload("Reviews").
+		Model(&domain.Worker{}).
+		Where("id IN ?", workerIDs).
+		Select("workers.*, (SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, (SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id ) AS rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating").
+		Find(&workersDB).Error; err != nil {
+		return nil, errx.New(fiber.StatusInternalServerError, "failed to get workers", err)
+	}
+
+	var workers []domain.Worker
+	for _, worker := range workersDB {
+		workers = append(workers, worker.format())
+	}
+
+	return workers, nil
+}
+
 func (r *WorkerRepositoryClient) GetWorker(ctx context.Context, workerID string) (domain.Worker, error) {
 	var worker WorkerDB
 

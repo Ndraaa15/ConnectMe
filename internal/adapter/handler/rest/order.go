@@ -73,7 +73,7 @@ func (order *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 	}
 }
 
-func (r *OrderHandler) GetOrders(c *fiber.Ctx) error {
+func (order *OrderHandler) GetOrders(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
@@ -87,7 +87,7 @@ func (r *OrderHandler) GetOrders(c *fiber.Ctx) error {
 		return err
 	}
 
-	orders, err := r.service.GetOrders(ctx, userID, filter)
+	orders, err := order.service.GetOrders(ctx, userID, filter)
 	if err != nil {
 		return err
 	}
@@ -103,7 +103,7 @@ func (r *OrderHandler) GetOrders(c *fiber.Ctx) error {
 	}
 }
 
-func (r *OrderHandler) GetOrder(c *fiber.Ctx) error {
+func (order *OrderHandler) GetOrder(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
@@ -113,7 +113,7 @@ func (r *OrderHandler) GetOrder(c *fiber.Ctx) error {
 
 	orderID := c.Params("id")
 
-	order, err := r.service.GetOrder(ctx, orderID)
+	resp, err := order.service.GetOrder(ctx, orderID)
 	if err != nil {
 		return err
 	}
@@ -124,12 +124,12 @@ func (r *OrderHandler) GetOrder(c *fiber.Ctx) error {
 	default:
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "Order Fetched",
-			"order":   order,
+			"order":   resp,
 		})
 	}
 }
 
-func (r *OrderHandler) UpdateOrder(c *fiber.Ctx) error {
+func (order *OrderHandler) UpdateOrder(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
@@ -140,11 +140,11 @@ func (r *OrderHandler) UpdateOrder(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := r.validator.Struct(req); err != nil {
+	if err := order.validator.Struct(req); err != nil {
 		return err
 	}
 
-	if err := r.service.UpdateOrder(ctx, orderID, req); err != nil {
+	if err := order.service.UpdateOrder(ctx, orderID, req); err != nil {
 		return err
 	}
 

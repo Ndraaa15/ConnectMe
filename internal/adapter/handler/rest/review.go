@@ -27,15 +27,15 @@ func NewReviewHandler(service port.ReviewServiceItf, validator *validator.Valida
 	}
 }
 
-func (order *ReviewHandler) Mount(router fiber.Router) {
+func (review *ReviewHandler) Mount(router fiber.Router) {
 	reviewRouter := router.Group("/reviews")
 	reviewRouter.Use(middleware.Request())
-	reviewRouter.Use(middleware.Authentication(order.token, "user"))
+	reviewRouter.Use(middleware.Authentication(review.token, "user"))
 
-	reviewRouter.Post("", order.handleCreateReview)
+	reviewRouter.Post("", review.handleCreateReview)
 }
 
-func (r *ReviewHandler) handleCreateReview(c *fiber.Ctx) error {
+func (review *ReviewHandler) handleCreateReview(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
@@ -49,11 +49,11 @@ func (r *ReviewHandler) handleCreateReview(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := r.validator.Struct(req); err != nil {
+	if err := review.validator.Struct(req); err != nil {
 		return err
 	}
 
-	if err := r.service.CreateReview(ctx, req, userID); err != nil {
+	if err := review.service.CreateReview(ctx, req, userID); err != nil {
 		return err
 	}
 

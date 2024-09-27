@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
@@ -17,23 +16,18 @@ import (
 )
 
 type OrderService struct {
-	repository                    port.OrderRepositoryItf
-	workerServiceRepositoryClient port.WorkerServiceRepositoryClientItf
-	paymentRepositoryClient       port.PaymentRepositoryClientItf
-	cache                         port.CacheItf
-	paymentGateway                port.PaymentGatewayItf
+	repository           port.OrderRepositoryItf
+	workerServiceService port.WorkerServiceServiceItf
+	cache                port.CacheItf
+	paymentGateway       port.PaymentGatewayItf
 }
 
-func NewOrderService(repository port.OrderRepositoryItf, cache port.CacheItf, workerServiceRepository port.WorkerServiceRepositoryItf, paymentRepository port.PaymentRepositoryItf, paymentGateway port.PaymentGatewayItf) *OrderService {
-	workerServiceRepositoryClient := workerServiceRepository.NewWorkerServiceRepositoryClient(false)
-	paymentRepositoryClient := paymentRepository.NewPaymentRepositoryClient(false)
-
+func NewOrderService(repository port.OrderRepositoryItf, cache port.CacheItf, workerServiceService port.WorkerServiceServiceItf, paymentGateway port.PaymentGatewayItf) *OrderService {
 	orderService := &OrderService{
-		repository:                    repository,
-		cache:                         cache,
-		workerServiceRepositoryClient: workerServiceRepositoryClient,
-		paymentRepositoryClient:       paymentRepositoryClient,
-		paymentGateway:                paymentGateway,
+		repository:           repository,
+		cache:                cache,
+		workerServiceService: workerServiceService,
+		paymentGateway:       paymentGateway,
 	}
 
 	return orderService
@@ -54,7 +48,7 @@ func (order *OrderService) CreateOrder(ctx context.Context, req dto.CreateOrderR
 		}
 	}()
 
-	workerServices, err := order.workerServiceRepositoryClient.GetWorkerServicesByWorkerServiceIDs(ctx, req.WorkerService)
+	workerServices, err := order.workerServiceService.GetWorkerServicesByWorkerServiceIDs(ctx, req.WorkerService)
 	if err != nil {
 		return dto.TransactionResponse{}, err
 	}
@@ -198,7 +192,7 @@ func (s *OrderService) GetOrder(ctx context.Context, orderID string) (dto.OrderD
 		return dto.OrderDetailResponse{}, err
 	}
 
-	workerServiceData, err := s.workerServiceRepositoryClient.GetWorkerServicesByWorkerServiceIDs(ctx, orderData.WorkerService)
+	workerServiceData, err := s.workerServiceService.GetWorkerServicesByWorkerServiceIDs(ctx, orderData.WorkerService)
 	if err != nil {
 		return dto.OrderDetailResponse{}, err
 	}
@@ -262,7 +256,7 @@ func (s *OrderService) UpdateOrder(ctx context.Context, orderID string, req dto.
 	if err != nil {
 		return err
 	}
-	fmt.Println(orderData)
+
 	orderData, err = parseUpdateOrder(orderData, req)
 	if err != nil {
 		return err
