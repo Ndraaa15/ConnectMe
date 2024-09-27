@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
@@ -149,4 +150,42 @@ func (r *WorkerRepositoryClient) GetWorker(ctx context.Context, workerID string)
 	}
 
 	return worker.format(), nil
+}
+
+func (r *WorkerRepositoryClient) GetWorkersForBotResponse(ctx context.Context, keywords []string) ([]domain.Worker, error) {
+	var workersDB []WorkerDB
+
+	query := r.q.Debug().
+		WithContext(ctx).
+		Preload("WorkerServices").
+		Preload("Tag").
+		Preload("Reviews").
+		Model(&domain.Worker{}).
+		Joins("JOIN worker_services ON worker_services.worker_id = workers.id").
+		Joins("JOIN tags ON tags.id = workers.tag_id")
+
+	for _, keyword := range keywords {
+		lowerKeyword := "%" + strings.ToLower(keyword) + "%"
+		query = query.Where(
+			"LOWER(workers.description) LIKE ? OR LOWER(worker_services.service) LIKE ? OR LOWER(tags.tag) LIKE ? OR LOWER(tags.specialization) LIKE ?",
+			lowerKeyword, lowerKeyword, lowerKeyword, lowerKeyword,
+		)
+	}
+
+	if err := query.
+		Select(`workers.*, 
+			(SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, 
+			(SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id) AS rating, 
+			(SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating`).
+		Order("rating DESC").
+		Find(&workersDB).Error; err != nil {
+		return nil, errx.New(fiber.StatusInternalServerError, "failed to get workers", err)
+	}
+
+	var workers []domain.Worker
+	for _, worker := range workersDB {
+		workers = append(workers, worker.format())
+	}
+
+	return workers, nil
 }

@@ -10,13 +10,48 @@ func TagSeeder() Seeder {
 		tags := []domain.Tag{
 			{
 				ID:             1,
-				Tag:            "Plumber",
-				Specialization: "Plumbing",
+				Tag:            "Komputer",
+				Specialization: "Komputer",
 			},
 			{
 				ID:             2,
-				Tag:            "Electrician",
-				Specialization: "Electrical",
+				Tag:            "Kebun",
+				Specialization: "Kebun",
+			},
+			{
+				ID:             3,
+				Tag:            "Desainer Grafis",
+				Specialization: "Desain",
+			},
+			{
+				ID:             4,
+				Tag:            "Penulis Konten",
+				Specialization: "Penulisan",
+			},
+			{
+				ID:             5,
+				Tag:            "Fotografer",
+				Specialization: "Fotografi",
+			},
+			{
+				ID:             6,
+				Tag:            "Pengembang Web",
+				Specialization: "Pengembangan Web",
+			},
+			{
+				ID:             7,
+				Tag:            "Penerjemah",
+				Specialization: "Penerjemahan",
+			},
+			{
+				ID:             8,
+				Tag:            "Pengelola Media Sosial",
+				Specialization: "Media Sosial",
+			},
+			{
+				ID:             9,
+				Tag:            "Videografer",
+				Specialization: "Videografi",
 			},
 		}
 

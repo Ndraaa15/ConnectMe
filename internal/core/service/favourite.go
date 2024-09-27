@@ -52,7 +52,7 @@ func (favourite *FavouriteService) GetFavourites(ctx context.Context, userID str
 	for _, favourite := range favourites {
 		workerIDs = append(workerIDs, favourite.WorkerID)
 	}
-	fmt.Println(workerIDs)
+
 	data, err := favourite.workerService.GetWorkersByWorkerIDs(ctx, workerIDs)
 	if err != nil {
 		return nil, err

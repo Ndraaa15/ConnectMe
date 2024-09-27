@@ -8,7 +8,9 @@ import (
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/config"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/handler/rest"
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/cloudinary"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/env"
+	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/gemini"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/gomail"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/midtrans"
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/paseto"
@@ -66,6 +68,8 @@ func (a *App) RegisterHandler() {
 	token := paseto.NewPaseto(a.env.Token)
 	email := gomail.NewGomail(a.env.Email)
 	paymentGateway := midtrans.NewMidtrans(a.env.PaymentGateway)
+	genai := gemini.NewGemini(a.env.Gemini)
+	storage := cloudinary.NewCloudinary(a.env.Storage)
 
 	authRepository := postgresql.NewAuthRepository(a.db)
 	authService := service.NewAuthService(authRepository, cache, token, email)
@@ -90,7 +94,11 @@ func (a *App) RegisterHandler() {
 	favouriteService := service.NewFavouriteService(favouriteRepository, workerService, cache)
 	favouriteHandler := rest.NewFavouriteHandler(favouriteService, a.validator, token)
 
-	a.handlers = append(a.handlers, authHandler, workerHandler, orderHandler, reviewHandler, favouriteHandler)
+	botRepository := postgresql.NewBotRepository(a.db)
+	botService := service.NewBotService(botRepository, genai, cache, workerService, storage)
+	botHandler := rest.NewBotHandler(botService, token, a.validator)
+
+	a.handlers = append(a.handlers, authHandler, workerHandler, orderHandler, reviewHandler, favouriteHandler, botHandler)
 }
 
 func (a *App) Run() error {

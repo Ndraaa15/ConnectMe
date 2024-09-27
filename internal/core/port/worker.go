@@ -17,10 +17,12 @@ type WorkerRepositoryClientItf interface {
 	GetWorkers(ctx context.Context) ([]domain.Worker, error)
 	GetWorker(ctx context.Context, workerID string) (domain.Worker, error)
 	GetWorkersByWorkerIDs(ctx context.Context, workerIDs []string) ([]domain.Worker, error)
+	GetWorkersForBotResponse(ctx context.Context, keyword []string) ([]domain.Worker, error)
 }
 
 type WorkerServiceItf interface {
 	GetWorkers(ctx context.Context) ([]dto.WorkerResponse, error)
 	GetWorker(ctx context.Context, workerID string) (dto.WorkerDetailResponse, error)
 	GetWorkersByWorkerIDs(ctx context.Context, workerIDs []string) ([]dto.WorkerResponse, error)
+	GetWorkersForBotResponse(ctx context.Context, keyword []string) ([]dto.WorkerResponse, error)
 }

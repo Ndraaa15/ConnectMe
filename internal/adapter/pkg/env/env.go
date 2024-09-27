@@ -53,8 +53,9 @@ type (
 
 	Storage struct {
 		ApiKey    string
-		ProjectID string
-		Bucket    string
+		ApiSecret string
+		Name      string
+		Folder    string
 	}
 
 	Gemini struct {
@@ -111,8 +112,9 @@ func NewEnv() (*Env, error) {
 
 	storage := Storage{
 		ApiKey:    os.Getenv("STORAGE_API_KEY"),
-		ProjectID: os.Getenv("STORAGE_PROJECT_ID"),
-		Bucket:    os.Getenv("STORAGE_BUCKET_ID"),
+		ApiSecret: os.Getenv("STORAGE_API_SECRET"),
+		Name:      os.Getenv("STORAGE_NAME"),
+		Folder:    os.Getenv("STORAGE_FOLDER"),
 	}
 
 	email := Email{

@@ -1,8 +1,10 @@
 package port
 
-import "io"
+import (
+	"context"
+	"mime/multipart"
+)
 
 type StorageItf interface {
-	UploadFile(fileName string, fileBody io.Reader) error
-	DeleteFile(fileName string) error
+	UploadFile(ctx context.Context, file multipart.File) (string, error)
 }

@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/util"
@@ -49,7 +48,6 @@ func (worker *WorkerService) GetWorkers(ctx context.Context) ([]dto.WorkerRespon
 }
 
 func (worker *WorkerService) GetWorkersByWorkerIDs(ctx context.Context, workerIDs []string) ([]dto.WorkerResponse, error) {
-	fmt.Println("from worker service", workerIDs)
 	repositoryClient := worker.repository.NewWorkerRepositoryClient(false)
 
 	data, err := repositoryClient.GetWorkersByWorkerIDs(ctx, workerIDs)
@@ -169,4 +167,29 @@ func formatReviewDetailResponse(review *domain.Review, reviewResp *dto.ReviewDet
 		Rating:   review.Rating,
 		TimeSent: timeSent,
 	}
+}
+
+func (worker *WorkerService) GetWorkersForBotResponse(ctx context.Context, keyword []string) ([]dto.WorkerResponse, error) {
+	repositoryClient := worker.repository.NewWorkerRepositoryClient(false)
+
+	data, err := repositoryClient.GetWorkersForBotResponse(ctx, keyword)
+	if err != nil {
+		return []dto.WorkerResponse{}, err
+	}
+
+	workerResponses := make([]dto.WorkerResponse, len(data))
+	var wg sync.WaitGroup
+
+	for i, worker := range data {
+		wg.Add(1)
+		go func(i int, worker domain.Worker) {
+			defer wg.Done()
+			formatWorkerResponse(&worker, &workerResponses[i])
+			formatTagResponse(&worker.Tag, &workerResponses[i].Tag)
+		}(i, worker)
+	}
+
+	wg.Wait()
+
+	return workerResponses, nil
 }

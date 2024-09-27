@@ -20,6 +20,8 @@ tags:
     description: Operations about review
   - name: favourite
     description: Operations about favourite
+  - name: bots
+    description: Operations about bots
 paths:
   /auth/signup:
     post:
@@ -768,6 +770,66 @@ paths:
                   message:
                     type: string
                     example: Favourite Created
+
+  /bots:
+    post:
+      tags:
+        - bots
+      summary: Generate response
+      description: Generate response
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                problem:
+                  type: string
+                  description: Describe the problem or question
+                  example: cara membersihkan komputer dengan benar
+                image:
+                  type: string
+                  format: binary
+                  description: file image
+      responses:
+        "201":
+          description: A JSON with problem solution
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      Problem:
+                        type: string
+                        example: cara membersihkan komputer dengan benar
+                      Image:
+                        type: string
+                        example: https://res.cloudinary.com/dcvnwpyd9/image/upload/v1727428662/connect-me/apm0qvx6wyorgjbwamuj.jpg
+                      Solution:
+                        type: string
+                        example: |
+                          Berikut langkah-langkah membersihkan komputer dengan benar:
+
+                          1. **Bersihkan secara fisik:** Gunakan kain microfiber lembut untuk membersihkan debu dan kotoran dari layar, keyboard, dan mouse. Hindari menggunakan cairan pembersih yang keras.
+                          2. **Hapus file yang tidak diperlukan:** Periksa folder download, desktop, dan recycle bin. Hapus file yang tidak perlu dan program yang tidak digunakan.
+                          3. **Kosongkan ruang disk:** Gunakan fitur Disk Cleanup bawaan Windows atau aplikasi pihak ketiga untuk menghapus file sementara dan cache.
+                          4. **Defragmentasi hard drive:** Ini membantu mengatur data pada hard drive Anda untuk meningkatkan kinerja. Anda dapat melakukan ini melalui menu Disk Defragmentation di Windows.
+                          5. **Jalankan scan antivirus:** Pastikan komputer Anda terlindungi dari malware dengan menjalankan scan antivirus secara teratur.
+                          6. **Perbarui sistem operasi:** Perbarui Windows Anda ke versi terbaru untuk mendapatkan patch keamanan dan peningkatan kinerja.
+                          7. **Bersihkan registry:** Registry menyimpan informasi penting tentang sistem Anda. Gunakan aplikasi pihak ketiga untuk membersihkan registry secara teratur dan meningkatkan kinerja.
+
+                          **Catatan:** Sebelum menggunakan aplikasi pihak ketiga untuk membersihkan komputer, pastikan untuk memilih yang terpercaya dan tidak mengandung malware.
+                      Worker:
+                        type: array
+                        items:
+                          type: object
+                  message:
+                    type: string
+                    example: Generate response success
 
 components:
   securitySchemes:

@@ -3,7 +3,6 @@ package domain
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
@@ -28,7 +27,7 @@ type Worker struct {
 
 type WorkerService struct {
 	ID        uint64    `gorm:"type:serial;primaryKey"`
-	WorkerID  uuid.UUID `gorm:"type:varchar(36)"`
+	WorkerID  string    `gorm:"type:varchar(36)"`
 	Service   string    `gorm:"type:varchar(255)"`
 	Price     float64   `gorm:"type:decimal"`
 	CreatedAt time.Time `gorm:"type:timestamp;autoCreateTime"`
