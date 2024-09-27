@@ -175,7 +175,7 @@ paths:
                             specialization:
                               type: string
                               example: Plumbing
-                        lower_price:
+                        lowerPrice:
                           type: integer
                           example: 150000
                         image:
@@ -188,7 +188,7 @@ paths:
                               type: number
                               format: float
                               example: 4
-                            total_rating:
+                            totalRating:
                               type: integer
                               example: 2
   /workers/{id}:
@@ -246,13 +246,13 @@ paths:
                       description:
                         type: string
                         example: Experienced plumber with over 5 years of work.
-                      work_experience:
+                      workExperience:
                         type: integer
                         example: 5
-                      lower_price:
+                      lowerPrice:
                         type: integer
                         example: 150000
-                      worker_services:
+                      workerServices:
                         type: array
                         items:
                           type: object
@@ -266,7 +266,7 @@ paths:
                             price:
                               type: integer
                               example: 150000
-                      work_hour:
+                      workHour:
                         type: array
                         items:
                           type: string
@@ -281,10 +281,10 @@ paths:
                             type: number
                             format: float
                             example: 4
-                          total_rating:
+                          totalRating:
                             type: integer
                             example: 2
-                          reviews_detail:
+                          reviewsDetail:
                             type: array
                             items:
                               type: object
@@ -302,10 +302,10 @@ paths:
                                   type: number
                                   format: float
                                   example: 4.5
-                                time_sent:
+                                timeSent:
                                   type: string
                                   example: 4 menit lalu
-                          total_review:
+                          totalReview:
                             type: integer
                             example: 2
 
@@ -722,7 +722,7 @@ paths:
                             specialization:
                               type: string
                               example: Plumbing
-                        lower_price:
+                        lowerPrice:
                           type: integer
                           example: 150000
                         image:
@@ -735,7 +735,7 @@ paths:
                               type: number
                               format: float
                               example: 4
-                            total_rating:
+                            totalRating:
                               type: integer
                               example: 2
 
@@ -803,13 +803,13 @@ paths:
                   data:
                     type: object
                     properties:
-                      Problem:
+                      problem:
                         type: string
                         example: cara membersihkan komputer dengan benar
-                      Image:
+                      image:
                         type: string
                         example: https://res.cloudinary.com/dcvnwpyd9/image/upload/v1727428662/connect-me/apm0qvx6wyorgjbwamuj.jpg
-                      Solution:
+                      solution:
                         type: string
                         example: |
                           Berikut langkah-langkah membersihkan komputer dengan benar:
@@ -823,10 +823,45 @@ paths:
                           7. **Bersihkan registry:** Registry menyimpan informasi penting tentang sistem Anda. Gunakan aplikasi pihak ketiga untuk membersihkan registry secara teratur dan meningkatkan kinerja.
 
                           **Catatan:** Sebelum menggunakan aplikasi pihak ketiga untuk membersihkan komputer, pastikan untuk memilih yang terpercaya dan tidak mengandung malware.
-                      Worker:
+                      workers:
                         type: array
                         items:
                           type: object
+                        properties:
+                          id:
+                            type: string
+                            example: 079ca082-37c0-44d2-a648-f83bf482c4a3
+                          name:
+                            type: string
+                            example: John Doe
+                          tag:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 1
+                              tag:
+                                type: string
+                                example: Plumber
+                              specialization:
+                                type: string
+                                example: Plumbing
+                          lowerPrice:
+                            type: integer
+                            example: 150000
+                          image:
+                            type: string
+                            example: https://arcudskzafkijqukfool.supabase.co/storage/v1/object/public/connect-me/professional-plumber.jpg
+                          review:
+                            type: object
+                            properties:
+                              rating:
+                                type: number
+                                format: float
+                                example: 4
+                              totalRating:
+                                type: integer
+                                example: 2
                   message:
                     type: string
                     example: Generate response success

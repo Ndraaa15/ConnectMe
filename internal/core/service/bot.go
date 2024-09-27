@@ -78,7 +78,7 @@ func (bot *BotService) GenerateResponse(ctx context.Context, image *multipart.Fi
 		Problem:  problem,
 		Image:    photoUrl,
 		Solution: content.Solution,
-		Worker:   worker,
+		Workers:  worker,
 	}
 
 	return resp, nil
