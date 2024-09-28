@@ -44,7 +44,7 @@ func UserSeeder() Seeder {
 				IsActive: true,
 			},
 			{
-				ID:       "51487321-5387-4204-a788-686f7b1b80d4",
+				ID:       "5d4bc029-2d99-4fa2-b853-e24febafee1d",
 				FullName: "Handedius Sando Sianipar",
 				Email:    "sandogi@gmail.com",
 				Phone:    "+628123456112",

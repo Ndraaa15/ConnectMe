@@ -22,12 +22,6 @@ type WorkerDetailResponse struct {
 	Review         ReviewResponse          `json:"review"`
 }
 
-type WorkerServiceResponse struct {
-	ID      uint64  `json:"id"`
-	Service string  `json:"service"`
-	Price   float64 `json:"price"`
-}
-
 type GetWorkersFilter struct {
 	Keyword     string
 	FromPopular bool

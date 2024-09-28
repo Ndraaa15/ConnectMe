@@ -31,10 +31,11 @@ func (workerService *WorkerServiceHandler) Mount(router fiber.Router) {
 	reviewRouter.Use(middleware.Request())
 	reviewRouter.Use(middleware.Authentication(workerService.token, "worker"))
 
-	reviewRouter.Post("", workerService.handleCreateReview)
+	reviewRouter.Post("", workerService.handleCreateWorkerService)
+	reviewRouter.Get("", workerService.handleGetWorkerService)
 }
 
-func (workerService *WorkerServiceHandler) handleCreateReview(c *fiber.Ctx) error {
+func (workerService *WorkerServiceHandler) handleCreateWorkerService(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
@@ -56,7 +57,31 @@ func (workerService *WorkerServiceHandler) handleCreateReview(c *fiber.Ctx) erro
 		return errx.New(fiber.StatusRequestTimeout, "request timeout", ctx.Err())
 	default:
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-			"message": "success create worker service",
+			"message": "Worker Service Created",
+		})
+	}
+}
+
+func (workerService *WorkerServiceHandler) handleGetWorkerService(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
+	defer cancel()
+
+	workerID, ok := c.Locals("userID").(string)
+	if !ok {
+		return errx.New(fiber.StatusUnauthorized, "invalid worker id from token", nil)
+	}
+
+	data, err := workerService.service.GetWorkerServicesByWorkerID(ctx, workerID)
+	if err != nil {
+		return err
+	}
+
+	select {
+	case <-ctx.Done():
+		return errx.New(fiber.StatusRequestTimeout, "request timeout", ctx.Err())
+	default:
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"data": data,
 		})
 	}
 }

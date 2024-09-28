@@ -11,7 +11,7 @@ func WorkerSeeder() Seeder {
 		workers := []domain.Worker{
 			{
 				ID:             "5d4bc029-2d99-4fa2-b853-e24febafee1d",
-				Name:           "Indra",
+				Name:           "Handedius Sando Sianipar",
 				TagID:          1,
 				Description:    "Teknisi komputer berpengalaman lebih dari 5 tahun, ahli dalam perbaikan dan pemeliharaan perangkat keras serta perangkat lunak. Indra memiliki kemampuan untuk mendiagnosis dan memperbaiki berbagai masalah komputer, termasuk masalah jaringan dan keamanan. Selain itu, Indra juga berpengalaman dalam memberikan pelatihan kepada pengguna komputer.",
 				WorkExperience: 5,
@@ -34,7 +34,7 @@ func WorkerSeeder() Seeder {
 			},
 			{
 				ID:             "69f74995-fd37-4f32-8583-e8baad2cd18f",
-				Name:           "Sando",
+				Name:           "Adi",
 				TagID:          3,
 				Description:    "Tukang rumput dengan pengalaman lebih dari 5 tahun, ahli dalam perawatan dan pembuatan taman. Sando memiliki kemampuan untuk merancang dan merawat taman dengan berbagai jenis tanaman. Selain itu, Sando juga berpengalaman dalam penggunaan alat-alat taman modern untuk memastikan hasil yang optimal.",
 				WorkExperience: 5,

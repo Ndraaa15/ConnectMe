@@ -42,7 +42,7 @@ services:
       retries: 5
 
   db:
-    image: postgres:latest
+    image: postgres:16
     container_name: db
     env_file:
       - .env

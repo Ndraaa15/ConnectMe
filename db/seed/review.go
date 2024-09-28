@@ -22,13 +22,13 @@ func ReviewSeeder() Seeder {
 			},
 			{
 				WorkerID: "5d4bc029-2d99-4fa2-b853-e24febafee1d",
-				UserID:   "51487321-5387-4204-a788-686f7b1b80d4",
+				UserID:   "d296f037-e55d-400f-8fb6-21dc97cc8fad",
 				Rating:   4.2,
 				Review:   "Sangat ahli dalam memperbaiki komputer di rumah saya. Pasti akan memanggilnya lagi jika ada masalah lain.",
 			},
 			{
 				WorkerID: "5d4bc029-2d99-4fa2-b853-e24febafee1d",
-				UserID:   "d296f037-e55d-400f-8fb6-21dc97cc8fad",
+				UserID:   "3eae758c-7c50-4266-b28d-eb180ffd8336",
 				Rating:   4.0,
 				Review:   "Cepat dan profesional dalam memperbaiki bug yang ada dalam komputer. Akan memanggilnya lagi jika ada masalah lain.",
 			},

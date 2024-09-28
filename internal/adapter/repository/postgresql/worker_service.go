@@ -62,3 +62,14 @@ func (r *WorkerServiceRepositoryClient) CreateWorkerService(ctx context.Context,
 
 	return nil
 }
+
+func (r *WorkerServiceRepositoryClient) GetWorkerServicesByWorkerID(ctx context.Context, workerID string) ([]domain.WorkerService, error) {
+	var workerServices []domain.WorkerService
+	err := r.q.Debug().WithContext(ctx).Where("worker_id = ?", workerID).Find(&workerServices).Error
+
+	if err != nil {
+		return nil, errx.New(fiber.StatusInternalServerError, "failed to get worker services", err)
+	}
+
+	return workerServices, nil
+}

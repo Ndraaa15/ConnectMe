@@ -47,3 +47,20 @@ func (workerService *WorkerServiceService) CreateWorkerService(ctx context.Conte
 
 	return nil
 }
+
+func (workerService *WorkerServiceService) GetWorkerServicesByWorkerID(ctx context.Context, workerID string) ([]dto.WorkerServiceResponse, error) {
+	repositoryClient := workerService.repository.NewWorkerServiceRepositoryClient(false)
+
+	data, err := repositoryClient.GetWorkerServicesByWorkerID(ctx, workerID)
+	if err != nil {
+		return nil, err
+	}
+
+	workerServiceResponses := make([]dto.WorkerServiceResponse, len(data))
+
+	for i, workerService := range data {
+		formatWorkerServiceResponse(&workerService, &workerServiceResponses[i])
+	}
+
+	return workerServiceResponses, nil
+}

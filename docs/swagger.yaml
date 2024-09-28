@@ -22,6 +22,8 @@ tags:
     description: Operations about favourite
   - name: bots
     description: Operations about bots
+  - name: worker-services
+    description: Operations about worker services
 paths:
   /auth/signup:
     post:
@@ -864,6 +866,84 @@ paths:
                   message:
                     type: string
                     example: Generate response success
+
+  /worker-services:
+    get:
+      tags:
+        - worker-services
+      summary: Get all worker services
+      description: Get all worker services
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer token
+      responses:
+        "200":
+          description: A JSON with worker services
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: List worker services
+                  workerServices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 5
+                        service:
+                          type: string
+                          example: Leak Repair
+                        price:
+                          type: integer
+                          example: 150000
+    post:
+      tags:
+        - worker-services
+      summary: Create worker service
+      description: Create worker service
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service:
+                  type: string
+                  example: Leak Repair
+                price:
+                  type: integer
+                  example: 150000
+                workerID:
+                  type: string
+                  example: 079ca082-37c0-44d2-a648-f83bf482c4a3
+      responses:
+        "201":
+          description: A JSON with worker service
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Worker Service Created
 
 components:
   securitySchemes:

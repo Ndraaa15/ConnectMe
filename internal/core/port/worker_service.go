@@ -16,9 +16,11 @@ type WorkerServiceRepositoryClientItf interface {
 	Rollback() error
 	GetWorkerServicesByWorkerServiceIDs(ctx context.Context, workerServiceIDs []int64) ([]*domain.WorkerService, error)
 	CreateWorkerService(ctx context.Context, data *domain.WorkerService) error
+	GetWorkerServicesByWorkerID(ctx context.Context, workerID string) ([]domain.WorkerService, error)
 }
 
 type WorkerServiceServiceItf interface {
 	GetWorkerServicesByWorkerServiceIDs(ctx context.Context, workerServiceIDs []int64) ([]*domain.WorkerService, error)
 	CreateWorkerService(ctx context.Context, req dto.CreateWorkerServiceRequest) error
+	GetWorkerServicesByWorkerID(ctx context.Context, workerID string) ([]dto.WorkerServiceResponse, error)
 }
