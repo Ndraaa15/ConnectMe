@@ -22,10 +22,10 @@ func NewWorkerService(repository port.WorkerRepositoryItf, cache port.CacheItf) 
 	}
 }
 
-func (worker *WorkerService) GetWorkers(ctx context.Context) ([]dto.WorkerResponse, error) {
+func (worker *WorkerService) GetWorkers(ctx context.Context, filter dto.GetWorkersFilter) ([]dto.WorkerResponse, error) {
 	repositoryClient := worker.repository.NewWorkerRepositoryClient(false)
 
-	data, err := repositoryClient.GetWorkers(ctx)
+	data, err := repositoryClient.GetWorkers(ctx, filter)
 	if err != nil {
 		return []dto.WorkerResponse{}, err
 	}

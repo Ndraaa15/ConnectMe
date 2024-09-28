@@ -7,6 +7,7 @@ import (
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
 	"github.com/Ndraaa15/ConnectMe/internal/core/domain"
+	"github.com/Ndraaa15/ConnectMe/internal/core/dto"
 	"github.com/Ndraaa15/ConnectMe/internal/core/port"
 	"github.com/gofiber/fiber/v2"
 	"github.com/lib/pq"
@@ -89,17 +90,28 @@ func (r *WorkerRepositoryClient) Rollback() error {
 	return r.q.Rollback().Error
 }
 
-func (r *WorkerRepositoryClient) GetWorkers(ctx context.Context) ([]domain.Worker, error) {
+func (r *WorkerRepositoryClient) GetWorkers(ctx context.Context, filter dto.GetWorkersFilter) ([]domain.Worker, error) {
 	var workersDB []WorkerDB
 
-	if err := r.q.Debug().
+	queryBuilder := r.q.Debug().
 		WithContext(ctx).
 		Preload("WorkerServices").
 		Preload("Tag").
 		Preload("Reviews").
 		Model(&domain.Worker{}).
-		Select("workers.*, (SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, (SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id ) AS rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating").
-		Find(&workersDB).Error; err != nil {
+		Joins("JOIN worker_services ON worker_services.worker_id = workers.id").
+		Joins("JOIN tags ON tags.id = workers.tag_id").
+		Select("DISTINCT workers.*, (SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, (SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id ) AS rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating")
+
+	if filter.Keyword != "" {
+		lowerKeyword := "%" + strings.ToLower(filter.Keyword) + "%"
+		queryBuilder = queryBuilder.Where(
+			"LOWER(workers.description) LIKE ? OR LOWER(worker_services.service) LIKE ? OR LOWER(tags.tag) LIKE ? OR LOWER(tags.specialization) LIKE ?",
+			lowerKeyword, lowerKeyword, lowerKeyword, lowerKeyword,
+		)
+	}
+
+	if err := queryBuilder.Find(&workersDB).Error; err != nil {
 		return nil, errx.New(fiber.StatusInternalServerError, "failed to get workers", err)
 	}
 
@@ -121,7 +133,7 @@ func (r *WorkerRepositoryClient) GetWorkersByWorkerIDs(ctx context.Context, work
 		Preload("Reviews").
 		Model(&domain.Worker{}).
 		Where("id IN ?", workerIDs).
-		Select("workers.*, (SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, (SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id ) AS rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating").
+		Select("DISTINCT workers.*, (SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, (SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id ) AS rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating").
 		Find(&workersDB).Error; err != nil {
 		return nil, errx.New(fiber.StatusInternalServerError, "failed to get workers", err)
 	}
@@ -143,7 +155,7 @@ func (r *WorkerRepositoryClient) GetWorker(ctx context.Context, workerID string)
 		Preload("Reviews.User").
 		Preload("Tag").
 		Model(&domain.Worker{}).
-		Select("workers.*, (SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, (SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id ) AS rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id AND reviews.review != '') AS total_review").
+		Select("DISTINCT workers.*, (SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, (SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id ) AS rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating, (SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id AND reviews.review != '') AS total_review").
 		Where("id = ?", workerID).
 		First(&worker).Error; err != nil {
 		return domain.Worker{}, errx.New(fiber.StatusInternalServerError, "failed to get worker", err)
@@ -173,7 +185,7 @@ func (r *WorkerRepositoryClient) GetWorkersForBotResponse(ctx context.Context, k
 	}
 
 	if err := query.
-		Select(`workers.*, 
+		Select(`DISTINCT workers.*, 
 			(SELECT MIN(price) FROM worker_services WHERE worker_services.worker_id = workers.id) AS lower_price, 
 			(SELECT AVG(rating) FROM reviews WHERE reviews.worker_id = workers.id) AS rating, 
 			(SELECT COUNT(*) FROM reviews WHERE reviews.worker_id = workers.id) AS total_rating`).

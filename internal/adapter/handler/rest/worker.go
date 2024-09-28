@@ -3,7 +3,6 @@ package rest
 import (
 	"context"
 	"errors"
-	"strconv"
 	"time"
 
 	"github.com/Ndraaa15/ConnectMe/internal/adapter/pkg/errx"
@@ -41,12 +40,12 @@ func (worker *WorkerHandler) GetWorkers(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 
-	_, err := parseGetWorkersFilter(c)
+	filter, err := parseGetWorkersFilter(c)
 	if err != nil {
 		return err
 	}
 
-	res, err := worker.service.GetWorkers(ctx)
+	res, err := worker.service.GetWorkers(ctx, filter)
 	if err != nil {
 		return err
 	}
@@ -91,14 +90,14 @@ func parseGetWorkersFilter(c *fiber.Ctx) (dto.GetWorkersFilter, error) {
 		filter.Keyword = keywordQuery
 	}
 
-	if fromPopularQuery := c.Query("from_popular"); fromPopularQuery != "" {
-		fromPopular, err := strconv.ParseBool(fromPopularQuery)
-		if err != nil {
-			return filter, err
-		}
+	// if fromPopularQuery := c.Query("from_popular"); fromPopularQuery != "" {
+	// 	fromPopular, err := strconv.ParseBool(fromPopularQuery)
+	// 	if err != nil {
+	// 		return filter, err
+	// 	}
 
-		filter.FromPopular = fromPopular
-	}
+	// 	filter.FromPopular = fromPopular
+	// }
 
 	return filter, nil
 }
